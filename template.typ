@@ -31,6 +31,8 @@
 )
 
 #let _print = edition == "print"
+// HTML element for the website edition (target() is "html" or "bundle" there)
+#let _el(tag, class: none, body) = html.elem(tag, attrs: if class != none { (class: class) } else { (:) }, body)
 #let _lead(size, height) = height - size
 
 // ------------------------------------------------- names used by the chapters
@@ -49,7 +51,13 @@
 #let lab(s, fill: palette.rust) = label-text(fill: fill, s)
 
 // a block in craken's callout shape: paper-warm, rounded, coloured label
-#let _panel(color, head, body, breakable: true) = block(
+#let _panel(color, head, body, breakable: true) = context if target() != "paged" {
+  let kind = if color == palette.amber { "tip" } else if color == palette.moss { "try" } else { "question" }
+  _el("aside", class: "ck-callout ck-callout--" + kind, {
+    _el("p", class: "ck-callout__label label", [#head])
+    body
+  })
+} else { block(
   width: 100%, above: spacing.s8, below: spacing.s8, inset: spacing.s6,
   fill: palette.paper-warm, radius: radii.m, breakable: breakable,
   {
@@ -57,7 +65,7 @@
     block(below: spacing.s2, sticky: true, label-text(fill: color)[#sucker(color: color) #h(spacing.s2) #head])
     body
   },
-)
+) }
 
 // small grey text after a label ("answer on p. 12")
 #let _aside(body) = text(font: fonts.text, weight: 400, size: type-size.caption, fill: palette.ink-soft, body)
@@ -65,11 +73,12 @@
 // page of the first element with a label, or "?"
 #let _page-of(lbl) = {
   let a = query(lbl)
-  if a.len() > 0 { link(a.first().location(), str(a.first().location().page())) } else { "?" }
+  if target() != "paged" { return if a.len() > 0 { link(a.first().location())[↗] } else { "?" } }
+  if a.len() > 0 [on p. #link(a.first().location(), str(a.first().location().page()))] else { "?" }
 }
 
 // Wide content: reaches into the margin column (outer side in print).
-#let _wide-block(body) = context {
+#let _wide-block(body) = context if target() != "paged" { body } else {
   let recto = not _print or calc.odd(here().page())
   let p = if recto { (right: -wide-extra) } else { (left: -wide-extra) }
   pad(..p, block(width: 100%, body))
@@ -81,7 +90,9 @@
 // A short note in the margin column, beside the line that calls it.  It has
 // no number (unlike craken's #note) and shares craken's stacking, so notes of
 // both kinds never overlap.  (`dy` shifts it down by hand when needed.)
-#let side(body, dy: 0pt) = context {
+#let side(body, dy: 0pt) = context if target() != "paged" {
+  _el("span", class: "ck-note margin-note", body)
+} else {
   let pos = here().position()
   let recto = not _print or calc.odd(pos.page)
   let x = if recto { page-grid.inside + page-grid.measure + page-grid.gutter } else { page-grid.edge }
@@ -145,7 +156,7 @@
   ytcounter.step()
   context {
     let n = str(counter(heading).get().first()) + "." + str(ytcounter.get().first())
-    _panel(palette.moss, [Your turn #n#metadata((id: id, n: n))#label("yt-" + id) #h(spacing.s4) #_aside[answer on p. #_page-of(label("ans-" + id))]], body, breakable: false)
+    _panel(palette.moss, [Your turn #n#metadata((id: id, n: n))#label("yt-" + id) #h(spacing.s4) #_aside[answer #_page-of(label("ans-" + id))]], body, breakable: false)
   }
 }
 
@@ -155,7 +166,7 @@
   stopcounter.step()
   context {
     let n = str(counter(heading).get().first()) + "." + str(stopcounter.get().first())
-    _panel(palette.rust, [Stop and answer #n#metadata((id: id, n: n))#label("st-" + id) #h(spacing.s4) #_aside[from memory; answers on p. #_page-of(label("ans-" + id))]], {
+    _panel(palette.rust, [Stop and answer #n#metadata((id: id, n: n))#label("st-" + id) #h(spacing.s4) #_aside[from memory; answers #_page-of(label("ans-" + id))]], {
       set enum(numbering: "(a)")
       body
     }, breakable: false)
@@ -163,7 +174,7 @@
 }
 
 // Pretest at the start of a chapter, revisited later in the text.
-#let pretest(id, body) = _panel(palette.amber, [Pretest #h(spacing.s4) #_aside[Try before reading, no cheating! Explained on p. #context _page-of(label("rev-" + id)).]], emph(body), breakable: false)
+#let pretest(id, body) = _panel(palette.amber, [Pretest #h(spacing.s4) #_aside[Try before reading, no cheating! Explained #context _page-of(label("rev-" + id)).]], emph(body), breakable: false)
 
 #let revisit(id, body) = block(above: spacing.s8, below: spacing.s8, inset: (left: spacing.s6), stroke: (left: 1.2pt + palette.amber),
   [#label-text(fill: palette.amber)[Pretest, revisited] #h(spacing.s2) #body #label("rev-" + id)])
@@ -287,7 +298,12 @@
 }, breakable: false)
 
 // Chapter symbol list: pairs (symbol, meaning).
-#let symbols(..pairs) = block(above: spacing.s4, below: spacing.s8, width: 100%,
+#let symbols(..pairs) = context if target() != "paged" {
+  _el("aside", class: "ck-callout", {
+    _el("p", class: "ck-callout__label label")[Symbols in this chapter]
+    table(columns: 2, align: left, ..pairs.pos().map(p => (p.at(0), p.at(1))).flatten())
+  })
+} else { block(above: spacing.s4, below: spacing.s8, width: 100%,
   inset: (y: spacing.s4), stroke: (y: 0.5pt + palette.rule), {
   label-text[Symbols in this chapter]
   v(spacing.s2, weak: true)
@@ -297,10 +313,15 @@
     columns: (auto, 1fr), column-gutter: spacing.s6, row-gutter: spacing.s4,
     ..pairs.pos().map(p => (p.at(0), p.at(1))).flatten()
   )
-})
+}) }
 
 // ================================================================== parts ===
-#let part(num, title, blurb: none) = {
+#let part(num, title, blurb: none) = context if target() != "paged" {
+  // Website: the part is a short lede at the top of its first chapter's page.
+  [#metadata((num: num, title: title))<partmark>]
+  ck.lede[Part #num · #title]
+  if blurb != none { blurb }
+} else {
   pagebreak(weak: true, to: if _print { "odd" } else { none })
   [#metadata((num: num, title: title))<partmark>]
   v(spacing.s24 * 2)
@@ -351,7 +372,11 @@
 #let unnumbered(title) = heading(level: 1, numbering: none, title)
 
 // =========================================================== the document ===
-#let book(title: "", subtitle: "", author: "", body) = {
+#let book(title: "", subtitle: "", author: "", body, ..web) = context if target() != "paged" {
+  // Website: craken's own site (home page, one page per chapter()).
+  show: ck.book.with(title: title, subtitle: subtitle, author: author, ..web)
+  body
+} else {
   set document(title: title, author: author)
   // The book has its own cover and contents page, so craken's are switched off.
   show: ck.book.with(title: none, author: author, contents: false)

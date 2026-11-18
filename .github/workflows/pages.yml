@@ -14,7 +14,7 @@ jobs:
       - name: Build PDFs
         run: |
           F="--package-path vendor --font-path vendor/local/craken/0.1.0/fonts --ignore-system-fonts"
-          mkdir -p _site && cp site/index.html _site/
+          typst compile $F --features bundle,html --format bundle main.typ _site
           typst compile $F main.typ _site/ammm-book.pdf
           typst compile $F --input theme=lantern main.typ _site/ammm-book-dark.pdf
           typst compile $F --input edition=print main.typ _site/ammm-book-print.pdf

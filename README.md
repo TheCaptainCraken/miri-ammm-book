@@ -13,6 +13,7 @@ F="--package-path vendor --font-path vendor/local/craken/0.1.0/fonts"
 typst compile $F main.typ                                  # A4
 typst compile $F --input theme=lantern main.typ dark.pdf   # dark
 typst compile $F --input edition=print main.typ print.pdf  # print
+typst compile $F --features bundle,html --format bundle main.typ _site   # website
 ```
 
 Every number in the book is checked by the scripts in `verify/` (`cd verify && python3 run_all.py`).

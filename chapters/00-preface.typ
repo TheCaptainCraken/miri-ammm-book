@@ -1,11 +1,11 @@
 #import "../template.typ": *
 
 // The contents page has no heading of its own, so it does not list itself.
-#page(header: none)[
+#context if target() == "paged" { page(header: none)[
   #v(28mm)
   #block(below: spacing.s12, text(font: fonts.display, weight: 600, size: type-size.chapter-title)[Contents])
   #contents()
-]
+] }
 
 #unnumbered[Preface]
 #set heading(numbering: none)

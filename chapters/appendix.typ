@@ -6,7 +6,7 @@
 
 // tables in the appendices also use the margin column (`wide` comes from template.typ)
 
-#let page-of(loc) = link(loc, str(loc.page()))
+#let page-of(loc) = if target() != "paged" { link(loc)[↗] } else { link(loc, str(loc.page())) }
 #let answer-page(id) = {
   let a = query(label("ans-" + id))
   if a.len() > 0 { page-of(a.first().location()) } else { text(fill: red)[??] }
