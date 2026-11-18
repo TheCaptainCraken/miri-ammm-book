@@ -4,7 +4,7 @@ A free study book for **Algorithmic Methods for Mathematical Models** (AMMM, MIR
 LP/ILP modelling, the simplex, branch & bound, NLP and metaheuristics, with exercises,
 past exams and worked answers. Written in [Typst](https://typst.app).
 
-📖 **Read it:** https://thecaptaincraken.github.io/book/
+📖 **Read it:** https://thecaptaincraken.github.io/miri-ammm-book/
 
 ## Build
 
