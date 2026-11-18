@@ -1,0 +1,11 @@
+[package]
+name = "craken"
+version = "0.1.0"
+entrypoint = "craken.typ"
+authors = ["Pietro Agnoli"]
+license = "MIT"
+description = "Captain Craken: friendly books on maths and computer science, as an A4 PDF, a print-ready book and a static website."
+
+[template]
+path = "template"
+entrypoint = "book.typ"

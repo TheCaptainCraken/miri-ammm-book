@@ -1,2 +1,4 @@
 *.pdf
 logbook.typ
+logbook.pdf
+_site/
