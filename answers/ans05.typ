@@ -1,0 +1,29 @@
+#import "../template.typ": *
+
+== Chapter 5
+
+#answer("ch5-yt1")[(a) $p_1 + p_2 + p_3 + p_4 + p_5 <= 3$; (b) $p_1 <= p_2$; (c) $p_3 + p_4 <= 1$; (d) $p_4 + p_5 >= 1$; (e) clause $not p_2 or not p_5 or not p_1$: $(1 - p_2) + (1 - p_5) + (1 - p_1) >= 1$, i.e. $p_1 + p_2 + p_5 <= 2$.]
+
+#answer("ch5-a")[(a) $sum_(c in C) x_(t c) = 1$ for all $t$; $sum_(t in T) x_(t c) <= 3$ for all $c$. (b) YES $= 1 + sum y$ and NO $= n - sum y$, so we need $2 sum y > n - 1$. For odd $n$, $(n - 1) slash 2$ is an integer, hence $sum_i y_i >= (n - 1) slash 2 + 1 = (n + 1) slash 2$. Test $n = 3$: one neighbour gives 2 YES against 2 NO, a tie; two neighbours give 3 against 1. (c) $sum_(i in F) x_(i j) >= sum_(i in M) x_(i j)$ for all $j$.]
+
+#answer("ch5-b")[(a) Clause $not a or b or c$: $(1 - a) + b + c >= 1$, i.e. $a <= b + c$. (b) We minimize $sum u_k$: a $u_k = 1$ with no vertex of colour $k$ only costs more, so an optimal solution never does it. (c) $binom(8, 2) = 28$.]
+
+#answer("ch5-w1")[(a) $a + b + c = 1$; (b) $a + b + c <= 2$; (c) $a = b$; (d) $a + c <= 1$.]
+
+#answer("ch5-w2")[For every class $j$: $x_(7 j) + x_(9 j) <= 1$.]
+
+#answer("ilp-sheet-2")[*Variables:* $x_(i j k) in {0, 1}$ = cell (row $i$, column $j$) holds digit $k$; $i, j, k in {1, dots, 9}$ (729 binaries). *Constraints:* one digit per cell, $sum_k x_(i j k) = 1$ for all $i, j$; each digit once per row, $sum_j x_(i j k) = 1$ for all $i, k$; once per column, $sum_i x_(i j k) = 1$ for all $j, k$; once per box, $sum_(i = 3p + 1)^(3p + 3) sum_(j = 3q + 1)^(3q + 3) x_(i j k) = 1$ for all $p, q in {0, 1, 2}$ and $k$; givens, $x_(i j k) = 1$ when cell $(i, j)$ shows $k$ (e.g. $x_(1 1 5) = 1$). *Objective:* none — any constant (a feasibility problem). CPLEX completes the grid with first row 5 3 4 6 7 8 9 1 2 and last row 3 4 5 2 8 6 1 7 9 (the solution is unique).]
+
+#answer("ilp-sheet-5")[As in Worked example 5.1. Symmetry breaking: $u_k >= u_(k+1)$ for $k = 1, dots, n - 1$ (use colours in order), optionally $c_(v k) = 0$ for $k > v$ (vertex $v$ never needs a colour above $v$ if vertices are coloured in order). Any colouring can be relabelled so that the colours used are $1, dots, k$, so the optimal value is unchanged; we only remove copies of the same solution, which branch & bound would otherwise explore one by one.]
+
+#answer("ilp-sheet-3")[*Variables:* $w_c in {0,1}$ = cell $c$ holds a white ball (27 cells); $m_L in {0, 1}$ = line $L$ is monochrome (49 lines). *Constraints:* $sum_c w_c = 13$ (so 14 are black). For each line $L = {c_1, c_2, c_3}$: all white forces $m_L$, $w_(c_1) + w_(c_2) + w_(c_3) - 2 <= m_L$; all black forces $m_L$, $1 - (w_(c_1) + w_(c_2) + w_(c_3)) <= m_L$. (Each is the clause method: "all three white ⇒ $m_L$".) *Objective:* $min sum_L m_L$; minimization means $m_L$ is 1 only when forced. The 49 lines are 27 parallel to an axis, 18 face diagonals (2 in each of the 9 planes) and 4 space diagonals. CPLEX: the minimum is *4* monochrome lines.]
+
+#answer("jun25-q2be")[(b) $max sum_(i=1)^n sum_(j=1)^m (f_(i j) x_(i j) + s_(i j) y_(i j))$. (c) Men confessing first are the $x$'s; women confessing first are the couples where the man is second, the $y$'s: $sum_(i, j) x_(i j) = sum_(i, j) y_(i j)$. (d) "Some date involves a man of $I$ or a woman of $J$": $sum_(i in I) sum_(j = 1)^m (x_(i j) + y_(i j)) + sum_(i = 1)^n sum_(j in J) (x_(i j) + y_(i j)) >= 1$. (Couples with both in $I times J$ are counted twice; harmless for "$>= 1$".) (e) Yes: each person has at most one date. For each man $i$: $sum_j (x_(i j) + y_(i j)) <= 1$; for each woman $j$: $sum_i (x_(i j) + y_(i j)) <= 1$. These imply the OPL constraint of part (a), which becomes redundant. The model was checked against brute force on 25 random instances (scores of any sign).]
+
+#answer("jan26-q2")[(a) $min sum_(i=1)^n T_i x_i$; nothing else is needed for the objective. (b) *New variables:* $y_i in {0, 1}$, "neighbour $i$ votes YES". *Majority:* you vote YES, so YES $= 1 + sum y$ and NO $<= n - sum y$; a strict majority holds when $sum_(i=1)^n y_i >= n slash 2$ ($n$ even: $1 + n slash 2 > n slash 2$). *Votes only come from influence:* neighbour $i$ can vote YES only if a selected neighbour convinces them (possibly $i$ themself, since $M_(i i) = 1$): $y_i <= sum_(j=1)^n M_(j i) x_j$ for all $i$. Note the direction: $y_i$ may be 0 even if $i$ is convinced, which is harmless (we only need enough YES). Checked against brute force on 25 random instances.]
+
+#answer("jun26-q2")[(a) $x_i in {0,1}$: candidate $i$ is in the crew ($1 <= i <= N$). $y_(i j) in {0, 1}$ for each pair $i < j$ with ${i, j} in.not E$: $i$ and $j$ follow a training course together. (b) *Crew size:* $sum_i x_i >= K$. *Every two crew members collaborated or trained:* for all $i < j$ with ${i, j} in.not E$, $x_i + x_j - 1 <= y_(i j)$ — the clause $(1 - x_i) + (1 - x_j) + y_(i j) >= 1$, "$x_i and x_j -> y_(i j)$". *Course limit:* for each $i$, $sum_(j : {i, j} in.not E) y_(i j) <= M$ (with $y_(i j)$ written for $i < j$ or $j < i$ as appropriate). (c) $min sum_({i, j} in.not E) c_(i j) y_(i j)$. Pairs in $E$ need no variable; courses for non-crew members are allowed by the model but never chosen, because they only cost. Checked against brute force on 25 random instances.]
+
+#answer("ch5-r1")[Adding the equations: $2 x_0 - x_2 + x_3 = 4$, so $x_0 = 2 + frac(1,2) x_2 - frac(1,2) x_3$; then $x_1 = 3 - x_0 + x_2 = 1 + frac(1,2) x_2 + frac(1,2) x_3$. Basic solution $x_0 = 2$, $x_1 = 1$; objective 2. $z = x_0 + x_2 = 2 + frac(3,2) x_2 - frac(1,2) x_3$: $d_2 = 3 slash 2$, $d_3 = -1 slash 2$. Not optimal ($x_3$). Ratio test for $x_3$: $x_0$ gives $x_3 <= 4$, $x_1$ does not limit; best value 4.]
+
+#answer("ch5-r2")[`forall (i in 1..N, j in 1..N : i < j && E[i][j] == 0) x[i] + x[j] - 1 <= y[i][j];` (with `y` declared for all pairs, or only for the needed ones via a tuple set).]
