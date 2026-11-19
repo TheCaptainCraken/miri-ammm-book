@@ -1,0 +1,21 @@
+%YAML 1.2
+---
+# The book's pseudocode (greedy, local search, GRASP, branch & bound...).
+name: Pseudocode
+file_extensions: [pseudo]
+scope: source.pseudo
+contexts:
+  main:
+    - match: '//.*$'
+      scope: comment.line.pseudo
+    # a procedure header:  RandomizedGreedy(alpha):
+    - match: '^([A-Z]\w*)(?=\(.*\):\s*$)'
+      scope: entity.name.function.pseudo
+    - match: '\b(for|each|to|while|do|if|then|else|return|repeat|until|loop|break|continue|and|or|not|in)\b'
+      scope: keyword.control.pseudo
+    - match: '\b(argmin|argmax|min|max|sum|random)\b'
+      scope: support.function.builtin.pseudo
+    - match: '\b(INFEASIBLE|none|true|false|infinity|\+inf(inity)?)\b'
+      scope: constant.language.pseudo
+    - match: '\b\d+(\.\d+)?\b'
+      scope: constant.numeric.pseudo

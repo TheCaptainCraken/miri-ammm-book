@@ -17,15 +17,16 @@
 #answer("ch14-p2")[A solution better than the best is always worth keeping, even if similar. Otherwise, without the distance condition the pool would fill with near-copies of one good solution; relinking near-copies explores almost nothing.]
 
 #answer("pr-new-exam")[(a) $d(S_a, S_b)$ = number of tasks assigned to different computers (or $|S_a plus.o S_b|$ of the pairs, twice that number). (b)
-```
+```pseudo
 x <- S_a; best <- better of S_a, S_b
 while x != S_b:
     D <- { t : x(t) != S_b(t) }
-    t* <- argmin over t in D of maxLoad(x with t moved to S_b(t)),
-          giving +infinity to moves that overflow a computer
-    if every move overflows: move t* anyway and repair by moving the smallest
-          task of the overflowing computer to the least-loaded computer where it fits
-          (or skip to the next step if impossible)
+    t* <- argmin over t in D of maxLoad(x, t -> S_b(t)),
+          where a move that overflows a computer costs +inf
+    if every move overflows:
+        move t* anyway, then repair: move the smallest task
+        of the overflowing computer to the least-loaded
+        computer where it fits (or skip it if impossible)
     x <- x with t* moved to S_b(t*)
     if x feasible and maxLoad(x) < maxLoad(best): best <- x
 return best

@@ -37,18 +37,19 @@ A pending problem $P$ is *pruned* (fathomed) — not split further — in three 
 
 The third rule is what makes branch & bound practical: an early good solution prunes large parts of the tree.
 
-```
-S := {P0};  Z := +infinity                      // minimization version
+```pseudo
+S := {P0};  Z := +infinity        // minimization version
 while S is not empty:
     remove a problem P from S
     solve LP(P)
-    if LP(P) infeasible:            continue        // prune
+    if LP(P) infeasible: continue         // prune
     let beta be its optimal basic solution
     if beta is integral on I:
         if cost(beta) < Z: store beta; Z := cost(beta)
-    else if cost(LP(P)) >= Z:       continue        // prune by bound
+    else if cost(LP(P)) >= Z: continue    // prune by bound
     else: pick j in I with beta_j fractional
-          S := S + { P and x_j <= floor(beta_j),  P and x_j >= ceil(beta_j) }
+          S := S + { P and x_j <= floor(beta_j),
+                     P and x_j >= ceil(beta_j) }
 return Z
 ```
 

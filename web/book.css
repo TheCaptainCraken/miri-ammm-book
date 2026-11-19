@@ -1,0 +1,72 @@
+/* web/book.css: the study book's own pieces on the website, on top of
+   craken.css.  Inlined into every page by chapter() in template.typ.
+   Blocks are set apart by space and type alone: no rules, no boxes. */
+
+.bk-label { margin-right: var(--space-2); }
+.bk-label--rust { color: var(--rust); }
+.bk-label--moss { color: var(--moss); }
+.bk-label--amber { color: var(--amber); }
+.bk-label--soft { color: var(--ink-soft); }
+.bk-aside {
+  font-family: var(--font-text); font-size: 15px; line-height: 23px;
+  font-weight: 400; color: var(--ink-soft);
+}
+.bk-labelline { margin: 0 0 var(--space-2); }
+
+/* Exercises */
+h3.bk-tier {
+  margin: var(--space-12) 0 0;
+  font-family: var(--font-display); font-variation-settings: "SOFT" 100, "WONK" 0;
+  font-size: 21px; line-height: 28px; font-weight: 600; color: var(--ink);
+}
+h3.bk-tier .bk-aside { margin-left: var(--space-2); }
+.bk-exercise { margin: var(--space-8) 0 0; }
+h3.bk-tier + .bk-exercise { margin-top: var(--space-4); }
+.bk-exercise__head {
+  display: flex; flex-wrap: wrap; align-items: baseline;
+  column-gap: var(--space-2); margin: 0 0 var(--space-1);
+}
+/* the empty anchor <span id> takes no room in the flex line */
+.bk-exercise__head > span[id]:empty { position: absolute; }
+.bk-exercise__head .bk-label { margin-right: 0; }
+.bk-exercise__body > :last-child { margin-bottom: 0; }
+.bk-exercise .ck-code { margin: var(--space-4) 0; }
+
+/* Answers */
+.bk-answer { margin: var(--space-8) 0 0; }
+.bk-answer__head { margin: 0 0 var(--space-1); }
+.bk-answer > :last-child { margin-bottom: 0; }
+.bk-answer .ck-code { margin: var(--space-4) 0; }
+
+/* Definitions, worked examples, pretest revisited */
+.bk-definition, .bk-revisit { margin: var(--space-8) 0; }
+.bk-example { margin: var(--space-12) 0 var(--space-8); }
+.bk-example__title { color: var(--ink); }
+
+/* Symbols in this chapter: a two-column list, set apart by space */
+.bk-symbols { margin: var(--space-8) 0 var(--space-12); }
+.bk-symbols__title { margin: 0 0 var(--space-4); color: var(--ink-soft); }
+.bk-symbols dl {
+  display: grid; grid-template-columns: minmax(5em, max-content) 1fr;
+  column-gap: var(--space-8); row-gap: var(--space-2);
+  margin: 0; font-size: 16px; line-height: 25px;
+}
+.bk-symbols dt { margin: 0; white-space: nowrap; }
+.bk-symbols dd { margin: 0; color: var(--ink); }
+@media (max-width: 760px) {
+  .bk-symbols dl { grid-template-columns: 1fr; row-gap: 0; }
+  .bk-symbols dd { margin-bottom: var(--space-2); color: var(--ink-soft); }
+}
+
+/* Code: lines are written to fit the column; on narrow screens the block
+   scrolls sideways, and the last character keeps its padding. */
+.ck-code { overflow: visible; }
+.ck-code pre { padding-right: 0; scrollbar-width: thin; scrollbar-color: var(--rule) transparent; }
+.ck-code pre code {
+  display: inline-block; min-width: 100%; box-sizing: border-box;
+  padding-right: var(--space-6);
+}
+
+@media (max-width: 760px) {
+  h3.bk-tier .bk-aside { display: block; margin-left: 0; }
+}

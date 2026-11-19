@@ -30,14 +30,14 @@ The choice of moves _is_ the design. The slides list the usual ones for subset p
 
 == First improvement and best improvement
 
-```
+```pseudo
 S <- initial solution (e.g. from the greedy)
 repeat
     improved <- false
-    for each S' in N(S):                       // in some fixed order
+    for each S' in N(S):      // in some fixed order
         if S' is feasible and f(S') < f(S):
             S <- S'; improved <- true
-            break                              // FIRST improvement: take it now
+            break     // FIRST improvement: take it now
 until not improved
 return S
 ```

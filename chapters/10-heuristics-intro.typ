@@ -42,15 +42,18 @@ With load 0.1 almost any assignment fits and the solver finishes immediately; wi
 
 Labs 3 and 4 start by generating instances "of increasing size". A useful generator controls three things: the *size* (number of tasks and computers), the *load* (so that instances are neither trivial nor hopeless) and the *seed* (so that experiments can be repeated). A sketch for the task problem:
 
-```
+```python
 def generate(n_tasks, n_cpus, load, seed):
     rng = random.Random(seed)
-    rc = [rng.uniform(400, 800) for _ in range(n_cpus)]          # capacities
-    total = load * sum(rc)                                       # total request wanted
+    # capacities, and the total request we want
+    rc = [rng.uniform(400, 800) for _ in range(n_cpus)]
+    total = load * sum(rc)
+    # requests: random weights, scaled to that total
     w = [rng.uniform(0.5, 1.5) for _ in range(n_tasks)]
-    rt = [total * wi / sum(w) for wi in w]                       # requests, scaled
-    # optional: reject the instance if some task exceeds every capacity
-    return rt, rc                                                # write them as a .dat file
+    rt = [total * wi / sum(w) for wi in w]
+    # optional: reject the instance if some task
+    # exceeds every capacity
+    return rt, rc         # write them as a .dat file
 ```
 Scaling the random weights to the target total fixes the load exactly. For a feasibility check before calling the solver, test the necessary conditions: total request $<=$ total capacity, and every task fits in at least one computer.
 

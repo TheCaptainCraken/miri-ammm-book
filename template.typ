@@ -68,7 +68,18 @@
 ) }
 
 // small grey text after a label ("answer on p. 12")
-#let _aside(body) = text(font: fonts.text, weight: 400, size: type-size.caption, fill: palette.ink-soft, body)
+#let _aside(body) = context if target() != "paged" { _el("span", class: "bk-aside", body) } else {
+  text(font: fonts.text, weight: 400, size: type-size.caption, fill: palette.ink-soft, body)
+}
+
+// a word space on the web, a wider gap in the PDF
+#let _gap = context if target() == "paged" { h(spacing.s4) } else [ ]
+
+// a coloured label; on the web a <span> that web/book.css styles
+#let _tone(fill) = if fill == palette.moss { "moss" } else if fill == palette.amber { "amber" } else if fill == palette.ink-soft { "soft" } else { "rust" }
+#let _label(fill: palette.rust, body) = context if target() != "paged" {
+  _el("span", class: "label bk-label bk-label--" + _tone(fill), body)
+} else { label-text(fill: fill, body) }
 
 // page of the first element with a label, or "?"
 #let _page-of(lbl) = {
@@ -124,20 +135,30 @@
 }
 
 // ================================================================ blocks ====
-#let label-line(name, extra: none, fill: palette.rust) = block(above: spacing.s8, below: spacing.s4, sticky: true, {
+#let label-line(name, extra: none, fill: palette.rust) = context if target() != "paged" {
+  _el("p", class: "bk-labelline", { _label(fill: fill, name); if extra != none { [ ]; _aside(extra) } })
+} else { block(above: spacing.s8, below: spacing.s4, sticky: true, {
   label-text(fill: fill, name)
   if extra != none { h(spacing.s4); _aside(extra) }
-})
+}) }
 
-#let definition(term, body) = block(
+#let definition(term, body) = context if target() != "paged" {
+  _el("div", class: "bk-definition", [#_label(fill: palette.moss)[Definition] #dfn(term). #body])
+} else { block(
   above: spacing.s8, below: spacing.s8, inset: (left: spacing.s6), stroke: (left: 1.2pt + palette.moss),
   [#label-text(fill: palette.moss)[Definition] #h(spacing.s2) #dfn(term). #body],
-)
+) }
 
 #let excounter = counter("worked")
 #let example(title, body) = {
   excounter.step()
-  block(above: spacing.s12, below: spacing.s8, breakable: true, {
+  context if target() != "paged" {
+    let n = str(counter(heading).get().first()) + "." + str(excounter.get().first())
+    _el("div", class: "bk-example", {
+      _el("p", class: "bk-labelline", [#_label[Worked example #n] #_el("em", class: "bk-example__title", title)])
+      body
+    })
+  } else { block(above: spacing.s12, below: spacing.s8, breakable: true, {
     context label-line(
       "Worked example " + str(counter(heading).get().first()) + "." + str(excounter.get().first()),
       extra: text(style: "italic", size: type-size.body, fill: palette.ink, title),
@@ -145,7 +166,7 @@
     body
     h(1fr)
     sucker(color: palette.ink-soft, filled: false, d: 6pt, stroke: 0.75pt)
-  })
+  }) }
 }
 
 // faded examples: blanks to fill in
@@ -156,7 +177,7 @@
   ytcounter.step()
   context {
     let n = str(counter(heading).get().first()) + "." + str(ytcounter.get().first())
-    _panel(palette.moss, [Your turn #n#metadata((id: id, n: n))#label("yt-" + id) #h(spacing.s4) #_aside[answer #_page-of(label("ans-" + id))]], body, breakable: false)
+    _panel(palette.moss, [Your turn #n#metadata((id: id, n: n))#label("yt-" + id) #_gap #_aside[answer #_page-of(label("ans-" + id))]], body, breakable: false)
   }
 }
 
@@ -166,7 +187,7 @@
   stopcounter.step()
   context {
     let n = str(counter(heading).get().first()) + "." + str(stopcounter.get().first())
-    _panel(palette.rust, [Stop and answer #n#metadata((id: id, n: n))#label("st-" + id) #h(spacing.s4) #_aside[from memory; answers #_page-of(label("ans-" + id))]], {
+    _panel(palette.rust, [Stop and answer #n#metadata((id: id, n: n))#label("st-" + id) #_gap #_aside[from memory; answers #_page-of(label("ans-" + id))]], {
       set enum(numbering: "(a)")
       body
     }, breakable: false)
@@ -174,10 +195,12 @@
 }
 
 // Pretest at the start of a chapter, revisited later in the text.
-#let pretest(id, body) = _panel(palette.amber, [Pretest #h(spacing.s4) #_aside[Try before reading, no cheating! Explained #context _page-of(label("rev-" + id)).]], emph(body), breakable: false)
+#let pretest(id, body) = _panel(palette.amber, [Pretest #_gap #_aside[Try before reading, no cheating! Explained #context _page-of(label("rev-" + id)).]], emph(body), breakable: false)
 
-#let revisit(id, body) = block(above: spacing.s8, below: spacing.s8, inset: (left: spacing.s6), stroke: (left: 1.2pt + palette.amber),
-  [#label-text(fill: palette.amber)[Pretest, revisited] #h(spacing.s2) #body #label("rev-" + id)])
+#let revisit(id, body) = context if target() != "paged" {
+  _el("div", class: "bk-revisit", [#_label(fill: palette.amber)[Pretest, revisited] #body #label("rev-" + id)])
+} else { block(above: spacing.s8, below: spacing.s8, inset: (left: spacing.s6), stroke: (left: 1.2pt + palette.amber),
+  [#label-text(fill: palette.amber)[Pretest, revisited] #h(spacing.s2) #body #label("rev-" + id)]) }
 
 // ============================================================== exercises ===
 // tier is one of: "warm", "practice", "exam", "tool", "review"
@@ -188,26 +211,37 @@
   tool: "CPLEX / OPL",
   review: "Spaced review",
 )
-#let tier(t, note: none) = block(above: spacing.s12, below: spacing.s4, sticky: true, {
+#let tier(t, note: none) = context if target() != "paged" {
+  _el("h3", class: "bk-tier", { tier-names.at(t); if note != none { [ ]; _aside(note) } })
+} else { block(above: spacing.s12, below: spacing.s4, sticky: true, {
   text(font: fonts.label, weight: 600, size: type-size.subsection, tier-names.at(t))
   if note != none { h(spacing.s4); _aside(note) }
-})
+}) }
 
 #let exnum = counter("exercise")
 #let exercise(id, source: none, time: 10, tier: "practice", body) = {
   exnum.step()
-  block(width: 100%, above: 0pt, below: 0pt, inset: (y: spacing.s6), stroke: (top: 0.5pt + palette.rule), breakable: true, {
-    // the heading line stays with the statement
-    block(below: spacing.s2, sticky: true, context {
-      let ch = counter(heading).get().first()
-      let n = str(ch) + "." + str(exnum.get().first())
-      [#metadata((id: id, n: n, source: source, time: time, tier: tier, chapter: ch))#label("ex-" + id)]
-      label-text(fill: palette.rust)[Exercise #n]
-      h(spacing.s4)
-      _aside[#if source != none [#source · ]≈#time min]
+  // the heading line: number, then source and time in grey
+  let head = context {
+    let ch = counter(heading).get().first()
+    let n = str(ch) + "." + str(exnum.get().first())
+    [#metadata((id: id, n: n, source: source, time: time, tier: tier, chapter: ch))#label("ex-" + id)]
+    _label[Exercise #n]
+    if target() == "paged" { h(spacing.s4) } else [ ]
+    _aside[#if source != none [#source · ]≈#time min]
+  }
+  context if target() != "paged" {
+    _el("section", class: "bk-exercise", {
+      _el("p", class: "bk-exercise__head", head)
+      _el("div", class: "bk-exercise__body", body)
     })
-    body
-  })
+  } else {
+    // separated by space alone; the heading line stays with the statement
+    block(width: 100%, above: spacing.s8, below: spacing.s8, breakable: true, {
+      block(below: spacing.s2, sticky: true, head)
+      body
+    })
+  }
 }
 
 // Reference to an exercise by id: "Exercise 4.7".
@@ -249,22 +283,27 @@
 }
 
 // Answers at the back.  `id` may be an exercise, a "your turn" or a stop box.
-#let answer(id, body) = block(above: spacing.s6, below: spacing.s6, breakable: true, {
-  context {
+#let answer(id, body) = {
+  let head = context {
     let e = query(label("ex-" + id))
     let y = query(label("yt-" + id))
     let s = query(label("st-" + id))
     let head = if e.len() > 0 {
       let m = e.first().value
-      [#link(e.first().location())[#m.n]#if m.source != none [ #h(spacing.s2) #_aside(m.source)]]
+      [#link(e.first().location())[#m.n]#if m.source != none [#_gap#_aside(m.source)]]
     } else if y.len() > 0 { link(y.first().location())[Your turn #y.first().value.n] } else if s.len() > 0 {
       link(s.first().location())[Stop #s.first().value.n]
     } else { text(fill: red)[??#id] }
-    [#label-text(fill: palette.moss, head)#label("ans-" + id)]
-    h(spacing.s4)
+    [#metadata(id)#label("ans-" + id)]
+    _label(fill: palette.moss, head)
+    if target() == "paged" { h(spacing.s4) }
   }
-  body
-})
+  context if target() != "paged" {
+    _el("div", class: "bk-answer", { _el("p", class: "bk-answer__head", head); body })
+  } else {
+    block(above: spacing.s6, below: spacing.s6, breakable: true, { head; body })
+  }
+}
 
 // ================================================================= tables ===
 // Book-style table in craken's hairlines (the rules come from craken).
@@ -298,19 +337,19 @@
 }, breakable: false)
 
 // Chapter symbol list: pairs (symbol, meaning).
+// On the web a definition list, laid out by web/book.css; no rules, only space.
 #let symbols(..pairs) = context if target() != "paged" {
-  _el("aside", class: "ck-callout", {
-    _el("p", class: "ck-callout__label label")[Symbols in this chapter]
-    table(columns: 2, align: left, ..pairs.pos().map(p => (p.at(0), p.at(1))).flatten())
+  _el("section", class: "bk-symbols", {
+    _el("p", class: "label bk-symbols__title")[Symbols in this chapter]
+    _el("dl", pairs.pos().map(p => _el("dt", p.at(0)) + _el("dd", p.at(1))).join())
   })
-} else { block(above: spacing.s4, below: spacing.s8, width: 100%,
-  inset: (y: spacing.s4), stroke: (y: 0.5pt + palette.rule), {
+} else { block(above: spacing.s8, below: spacing.s12, width: 100%, {
   label-text[Symbols in this chapter]
   v(spacing.s2, weak: true)
   set text(size: type-size.caption)
   set par(leading: _lead(type-size.caption, line-height.caption), justify: false)
   grid(
-    columns: (auto, 1fr), column-gutter: spacing.s6, row-gutter: spacing.s4,
+    columns: (auto, 1fr), column-gutter: spacing.s8, row-gutter: spacing.s4,
     ..pairs.pos().map(p => (p.at(0), p.at(1))).flatten()
   )
 }) }
@@ -368,16 +407,37 @@
   }
 }
 
+// The book's own counters restart with every chapter (craken resets its own).
+#let _reset-counters() = {
+  exnum.update(0)
+  excounter.update(0)
+  ytcounter.update(0)
+  stopcounter.update(0)
+}
+
+// One page of the website (slug.html); in the PDF just the body.  Each page
+// carries the book's stylesheet, web/book.css, inline.
+#let chapter(slug, body) = ck.chapter(slug, {
+  context if target() != "paged" { html.elem("style", read("web/book.css")) }
+  body
+})
+
 // Unnumbered chapter-like section (preface, answers, appendices).
 #let unnumbered(title) = heading(level: 1, numbering: none, title)
 
 // =========================================================== the document ===
+// Code languages craken does not know: OPL, CPLEX's LP format, pseudocode.
+#let _syntaxes = ("syntax/opl.sublime-syntax", "syntax/lp.sublime-syntax", "syntax/pseudo.sublime-syntax")
+
 #let book(title: "", subtitle: "", author: "", body, ..web) = context if target() != "paged" {
   // Website: craken's own site (home page, one page per chapter()).
+  set raw(syntaxes: _syntaxes)
   show: ck.book.with(title: title, subtitle: subtitle, author: author, ..web)
+  show heading.where(level: 1): it => { _reset-counters(); it }
   body
 } else {
   set document(title: title, author: author)
+  set raw(syntaxes: _syntaxes)
   // The book has its own cover and contents page, so craken's are switched off.
   show: ck.book.with(title: none, author: author, contents: false)
 
@@ -398,14 +458,7 @@
     align(if not _print or calc.odd(p) { right } else { left }, head)
   })
 
-  // The book's own counters restart with every chapter (craken resets its own).
-  show heading.where(level: 1): it => {
-    exnum.update(0)
-    excounter.update(0)
-    ytcounter.update(0)
-    stopcounter.update(0)
-    it
-  }
+  show heading.where(level: 1): it => { _reset-counters(); it }
 
   // Long inline code may break across lines; short code stays in craken's box.
   show raw.where(block: false): it => if it.text.len() <= 32 { it } else {

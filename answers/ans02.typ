@@ -23,7 +23,7 @@
 #answer("lab1-ce")[The code is the `P1.mod`/`P1.dat` pair of §2.3 and the `main` block of §2.4. Optimal value $z^* = 0.7238$ (72.38 %). In any optimal solution every computer has load exactly $0.7238$ (otherwise moving a fraction of a task from the busiest computer to a less loaded one would lower the maximum), i.e. computer $c$ receives $0.7238 R_c$ units of work. Many different splits of the tasks achieve those three totals — for example, task 2 can be spread over the three computers in infinitely many ways — so the solution is not unique; only the loads are.]
 
 #answer("lab1-d")[
-```
+```opl
 execute {
   var req = 0, cap = 0;
   for (var t = 1; t <= nTasks; t++) req += rt[t];
@@ -41,7 +41,7 @@ It must be placed before the objective. With the lab data: 1238.47 requested, 17
 #answer("lab2-c")[P2 is infeasible: task 2 (560.89) only fits on computer 3, leaving 140.89 there, so only task 4 can join it; tasks 1 (261.27), 3 (310.51) and 5 (344.7) must go to computers 1 and 2, but any two of them exceed 505.67, so one computer would need two of them. P1 is feasible with $z^* = 1583.17 slash 1711.13 = 0.9252$ because fractions of tasks fill the leftovers.]
 
 #answer("lab2-d")[
-```
+```opl
 int K = ...;
 dvar boolean x_tc[t in T, c in C];
 dvar boolean rej[t in T];
@@ -51,7 +51,8 @@ subject to {
   forall (t in T) sum(c in C) x_tc[t,c] == 1 - rej[t];
   sum(t in T) rej[t] <= K;
   forall (c in C) sum(t in T) rt[t]*x_tc[t,c] <= rc[c];
-  forall (c in C) z >= (1/rc[c]) * sum(t in T) rt[t]*x_tc[t,c];
+  forall (c in C)
+    z >= (1/rc[c]) * sum(t in T) rt[t]*x_tc[t,c];
 }
 ```
 Optimal values: $K = 1$: 0.6419 (reject task 2); $K = 2$: 0.5167; $K = 3$: 0.3723.]
@@ -59,13 +60,15 @@ Optimal values: $K = 1$: 0.6419 (reject task 2); $K = 2$: 0.5167; $K = 3$: 0.372
 #answer("lab2-ef")[P2e: same variables; objective `minimize sum(t in T) rt[t]*rej[t];`, no budget $K$ (and $z$ may be dropped). Optimum: reject task 1 only, 261.27. Sizes on the five-task data: P2a 16 variables (15 binary + $z$) and 11 constraints (infeasible); P2d 21 variables (20 binary + $z$) and 12 constraints; P2e 21 variables and 11 constraints if you keep $z$ (20 binary and 8 constraints if you drop it, since $z$ no longer matters).]
 
 #answer("lab3-a")[
-```
-int nTasks = ...; int nThreads = ...; int nCPUs = ...; int nCores = ...;
-range T = 1..nTasks; range H = 1..nThreads; range C = 1..nCPUs; range K = 1..nCores;
+```opl
+int nTasks = ...;  int nThreads = ...;
+int nCPUs  = ...;  int nCores   = ...;
+range T = 1..nTasks;  range H = 1..nThreads;
+range C = 1..nCPUs;   range K = 1..nCores;
 float rh[h in H] = ...;
 float rc[c in C] = ...;
-int CK[c in C][k in K] = ...;      // core k belongs to computer c
-int TH[t in T][h in H] = ...;      // thread h belongs to task t
+int CK[c in C][k in K] = ...;  // core k is in computer c
+int TH[t in T][h in H] = ...;  // thread h is in task t
 int nThreadsOf[t in T] = sum(h in H) TH[t][h];
 int nCoresOf[c in C]   = sum(k in K) CK[c][k];
 
@@ -76,10 +79,13 @@ minimize z;
 subject to {
   forall (h in H) sum(k in K) x_hk[h,k] == 1;
   forall (t in T, c in C)
-    sum(h in H, k in K : TH[t][h] == 1 && CK[c][k] == 1) x_hk[h,k] == nThreadsOf[t] * x_tc[t,c];
-  forall (c in C, k in K : CK[c][k] == 1) sum(h in H) rh[h]*x_hk[h,k] <= rc[c];
+    sum(h in H, k in K : TH[t][h] == 1 && CK[c][k] == 1)
+      x_hk[h,k] == nThreadsOf[t] * x_tc[t,c];
+  forall (c in C, k in K : CK[c][k] == 1)
+    sum(h in H) rh[h]*x_hk[h,k] <= rc[c];
   forall (c in C)
-    z >= (1/(nCoresOf[c]*rc[c])) * sum(h in H, k in K : CK[c][k] == 1) rh[h]*x_hk[h,k];
+    z >= (1/(nCoresOf[c]*rc[c])) *
+      sum(h in H, k in K : CK[c][k] == 1) rh[h] * x_hk[h,k];
 }
 ```
 Optimum $z^* = 0.5328$: tasks 1 and 4 on computer 1, task 3 on computer 2, task 2 on computer 3 ($2 dot 560.89 slash (3 dot 701.78)$). No "one computer per task" constraint is needed: summing constraint (3) over $c$ gives $|H(t)| = |H(t)| sum_c x_(t c)$, because every thread is on exactly one core; hence $sum_c x_(t c) = 1$ follows.]

@@ -9,13 +9,14 @@
 *(a) Candidates:* pairs $chevron.l k, p chevron.r$, job $k$ not yet placed and $p = ("tr", "lc")$ a *corner point*: $(0, 0)$ initially, and after placing a job at $("tr", "lc")$ the points $("tr" + h_k, "lc")$ (right of it in time) and $("tr", "lc" + w_k)$ (above it in memory). Jobs are taken in decreasing area $h_k w_k$.
 
 *Greedy function (min):* $q(chevron.l k, p chevron.r, S)$ = cost of the cheapest plan $(i, j)$ with $H_i >=$ the latest end time and $W_j >=$ the highest memory address after placing $k$ at $p$; ties broken by the smaller area of the bounding box; $+infinity$ if $k$ at $p$ overlaps a placed job or no plan contains the result.
-```
+```pseudo
 points <- {(0,0)}; S <- {}
 for k in jobs sorted by h_k * w_k decreasing:
     best <- argmin over p in points of q(<k,p>, S)
     if q(best) = +infinity then return INFEASIBLE
     S <- S + {<k,best>}; points <- points - {best}
-    points <- points + {(best.tr + h_k, best.lc), (best.tr, best.lc + w_k)}
+    points <- points + {(best.tr + h_k, best.lc),
+                        (best.tr, best.lc + w_k)}
 plan <- cheapest plan containing the bounding box of S
 return S, plan, p[plan]
 ```
@@ -28,13 +29,14 @@ On 120 random instances (3 jobs) it was optimal 111 times (2.4 % above the optim
 *(a) Candidates:* pairs $chevron.l i, j chevron.r$ for the current student $i$ and every class $j$. Students are processed bad ones first, then good ones, then the others (bad students are the hardest to place).
 
 *Greedy function (max):* $q(chevron.l i, j chevron.r, S) = min{C_(a b) : a < b, a, b in "class"(j) union {i}}$ (1 if the class would have one student) — the minimum compatibility of class $j$ after adding $i$. Value $-infinity$ if the class is full ($u$), or if the partial solution could no longer be completed: some class's deficit of good students ($2 |B(j)| - |G(j)|$) exceeds the good students still to place, or does not fit in its free seats, or the classes below $l$ need more students than remain.
-```
+```pseudo
 order <- B, then G, then the other students
 for i in order:
-    j* <- argmax over classes j of q(<i,j>, S)    (ties: smaller class)
+    // ties: the smaller class
+    j* <- argmax over classes j of q(<i,j>, S)
     if q(<i,j*>, S) = -infinity then return INFEASIBLE
     put i in class j*; update |G(j*)|, |B(j*)|, sizes
-return S, min over classes of the within-class minimum compatibility
+return S, the minimum compatibility within any class
 ```
 On 200 random instances (8 students, 2 classes) it always found a feasible assignment and was optimal in 95; the minimum compatibility was 0.051 lower than optimal on average.
 
@@ -45,15 +47,16 @@ On 200 random instances (8 students, 2 classes) it always found a feasible assig
 #answer("mix-2")[(a) $y_j in {0, 1}$: defibrillator at site $j$. $min sum_j c_j y_j$ s.t. $sum_j a_(i j) y_j >= 1$ for all $i != h$ and $sum_j a_(h j) y_j >= 2$. (b) Let $r_i$ be the remaining coverage needed by building $i$ (1, or 2 for $h$, decreased as sites are chosen). Candidates: unchosen sites; $q(j) = c_j slash sum_i a_(i j) [r_i > 0]$, cost per unit of still-needed coverage, minimized ($+infinity$ if it covers nothing needed). Myopic: a cheap site chosen early may become redundant once later sites cover its buildings (a "remove redundant sites" local search fixes this), and the double coverage of $h$ is not anticipated.]
 
 #answer("case-a")[
-```
+```opl
 int nV = ...; int nD = ...;
 range V = 1..nV; range D = 1..nD;
 float w[V] = ...; float K[D] = ...; float price[D] = ...;
-int ok[V][D] = ...;                          // 1 if latency allows v in d
+int ok[V][D] = ...;      // 1 if latency allows v in d
 dvar boolean x[V][D];
 minimize sum(v in V, d in D) price[d] * w[v] * x[v][d];
 subject to {
-  forall (v in V) sum(d in D : ok[v][d] == 1) x[v][d] == 1;
+  forall (v in V)
+    sum(d in D : ok[v][d] == 1) x[v][d] == 1;
   forall (v in V, d in D : ok[v][d] == 0) x[v][d] == 0;
   forall (d in D) sum(v in V) w[v] * x[v][d] <= K[d];
 }
@@ -73,10 +76,11 @@ CPLEX: 32.]
 #answer("mock-q3")[*Constraints:* C1 each exam once; C2 conflicting exams at least two slots apart; C3 at most $S$ students per slot. *Objective:* minimize the last slot used.
 
 *(a) Candidates:* pairs $chevron.l e, t chevron.r$ (unscheduled exam, slot). *Choice of exam:* the most constrained one — largest number of slots already forbidden by scheduled conflicting exams (slots $t - 1$, $t$, $t + 1$ around each of them); ties: more conflicts, then more students. *Greedy function (min):* $q(chevron.l e, t chevron.r) = t$ if $t$ is allowed (no conflicting exam in $t - 1, t, t + 1$, seats available), $+infinity$ otherwise — the earliest feasible slot.
-```
+```pseudo
 S <- {}
 while some exam is unscheduled:
-    e <- unscheduled exam with most forbidden slots (ties: more conflicts, more students)
+    e <- unscheduled exam with most forbidden slots
+         (ties: more conflicts, then more students)
     t <- smallest slot in 1..m with q(<e,t>) < +infinity
     if none then return INFEASIBLE
     S <- S + {<e,t>}

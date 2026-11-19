@@ -17,7 +17,7 @@
 #answer("lab4-c")[RCL for P2: for the current task $t$, the feasible computers whose resulting load is at most $q_min + alpha (q_max - q_min)$; pick one at random. Expected tuning curve: very small $alpha$ ≈ greedy; moderate $alpha$ (often 0.1–0.4) best; large $alpha$ wastes iterations on poor constructions. With equal time, GRASP usually beats greedy + local search (it explores many local optima) and approaches CPLEX on instances CPLEX cannot finish.]
 
 #answer("grasp-new-exam")[(a) With $q(i, S)$ the added training cost (Chapter 11), at each step: $"RCL" = {i in cal(C) : q(i, S) <= q_min + alpha (q_max - q_min)}$, where $cal(C)$ contains only feasible astronauts (courses within $M$). $alpha = 0$: the greedy (ties broken at random, so the first pick already varies); $alpha = 1$: any feasible astronaut. (b)
-```
+```pseudo
 S <- {}; courses[.] <- 0
 while |S| < K:
     C <- feasible astronauts not in S

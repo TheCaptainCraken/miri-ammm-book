@@ -21,11 +21,12 @@
 #answer("lab4-b2")[Reassignment: for each task and each other computer, try moving it; exchange: for each pair of tasks on different computers, try swapping. Each candidate is feasible if both capacities hold; evaluate the new maximum load from the two changed loads. First improvement applies the first improving move and restarts the scan; best improvement applies the best move of the full scan. Typical outcome: local search improves the greedy noticeably on tight instances; exchange finds improvements reassignment cannot (when every computer is nearly full); first improvement is usually faster per iteration, best improvement needs fewer iterations; all of them remain far faster than CPLEX.]
 
 #answer("ls-new-exam")[(a) *Drop* a selected neighbour $i in X$ if the others still convince at least $n slash 2$ ($|union.big_(j in X without {i}) M(j)| >= n slash 2$) — always improving when feasible. *Swap* $i in X$ for $k in.not X$ when $T_k < T_i$ and $|union.big_(j in X without {i}) M(j) union M(k)| >= n slash 2$. Infeasible moves (fewer than $n slash 2$ convinced) are discarded. (b) Keep a counter $"cnt"(j)$ = number of selected neighbours that convince $j$. Dropping $i$ loses the $j in M(i)$ with $"cnt"(j) = 1$; adding $k$ gains the $j in M(k)$ with $"cnt"(j) = 0$. The cost change is $-T_i$ or $T_k - T_i$. (c)
-```
+```pseudo
 repeat
     best <- none; bestDelta <- 0
     for i in X:
-        if drop(i) feasible and -T_i < bestDelta: best <- drop(i); bestDelta <- -T_i
+        if drop(i) feasible and -T_i < bestDelta:
+            best <- drop(i); bestDelta <- -T_i
         for k not in X:
             if swap(i,k) feasible and T_k - T_i < bestDelta:
                 best <- swap(i,k); bestDelta <- T_k - T_i

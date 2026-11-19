@@ -1,0 +1,33 @@
+%YAML 1.2
+---
+# IBM ILOG OPL (CPLEX Optimization Studio): models, data files, script blocks.
+name: OPL
+file_extensions: [opl, mod, dat]
+scope: source.opl
+contexts:
+  main:
+    - match: '//.*$'
+      scope: comment.line.opl
+    - match: '/\*'
+      push:
+        - meta_scope: comment.block.opl
+        - match: '\*/'
+          pop: true
+    - match: '"'
+      push:
+        - meta_scope: string.quoted.double.opl
+        - match: '\\.'
+        - match: '"'
+          pop: true
+    # constraint labels:  Grinding:
+    - match: '^\s*([A-Za-z_]\w*)\s*(:)(?!:)\s*(?=$|\S)'
+      captures:
+        1: entity.name.function.label.opl
+    - match: '\b(dvar|dexpr|int\+?|float\+?|boolean|range|string|tuple|setof|var)(?=\b|\+|\s)'
+      scope: storage.type.opl
+    - match: '\b(subject\s+to|minimize|maximize|forall|sum|prod|in|execute|main|constraints|ordered|sorted|with|if|else|for|while|return|new|using|true|false)\b'
+      scope: keyword.control.opl
+    - match: '\b(writeln|write|stop|abs|maxl|minl|min|max|card|floor|ceil|cplex|thisOplModel|Ilo\w+)\b'
+      scope: support.function.builtin.opl
+    - match: '\b\d+(\.\d+)?([eE][+-]?\d+)?\b'
+      scope: constant.numeric.opl

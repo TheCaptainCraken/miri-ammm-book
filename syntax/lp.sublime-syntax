@@ -1,0 +1,18 @@
+%YAML 1.2
+---
+# CPLEX LP file format and the CPLEX interactive optimizer's prompt.
+name: CPLEX LP
+file_extensions: [lp]
+scope: source.cplex-lp
+contexts:
+  main:
+    - match: '\\.*$'
+      scope: comment.line.cplex-lp
+    - match: '^CPLEX>'
+      scope: keyword.other.prompt.cplex-lp
+    - match: '(?i)^\s*(maximize|maximum|max|minimize|minimum|min|subject\s+to|such\s+that|s\.?t\.|bounds?|generals?|general|binary|binaries|end)\b'
+      scope: keyword.control.cplex-lp
+    - match: '(?i)\b(free|infinity|inf)\b'
+      scope: storage.type.cplex-lp
+    - match: '(?<![\w.])[+-]?\d+(\.\d+)?([eE][+-]?\d+)?\b'
+      scope: constant.numeric.cplex-lp

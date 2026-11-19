@@ -9,8 +9,9 @@
 #answer("ch7-b")[(a) $S_1 + 2 <= S_2 + 10(1 - o)$, $S_2 + 4 <= S_1 + 10 o$. (b) It must make the relaxed constraint true for every feasible schedule (here: every end time $<= H$). $10^9$ is valid but makes the LP relaxation almost useless and invites numerical trouble; take the smallest valid horizon. (c) $binom(6, 2) = 15$.]
 
 #answer("ch7-w1")[
-```
-dvar float+ m[1..3] in 0..60;  dvar float+ s[0..3] in 0..30;
+```opl
+dvar float+ m[1..3] in 0..60;
+dvar float+ s[0..3] in 0..30;
 minimize sum(t in 1..3) (10*m[t] + 2*s[t]);
 subject to {
   s[0] == 0;

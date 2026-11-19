@@ -27,18 +27,21 @@
 *Greedy function (max):* $q(chevron.l i, j, r chevron.r, S) = f_(i j)$ if $r = F$, $s_(i j)$ if $r = S$ — the score the date adds. To keep C3 reachable, only the role that restores balance is allowed: with $X$ dates of type $F$ and $Y$ of type $S$ in $S$, if $X > Y$ only $r = S$, if $Y > X$ only $r = F$, if $X = Y$ both ($q = -infinity$ for the other role).
 
 *Pseudocode:*
-```
+```pseudo
 S <- {}; FM <- men; FW <- women; X <- 0; Y <- 0
 loop
     R <- {F, S} if X = Y; {S} if X > Y; {F} if Y > X
     C <- {<i,j,r> : i in FM, j in FW, r in R}
-    if S = {} then C <- {<i,j,r> in C : i in I or j in J}      // C4 on the first date
+    if S = {} then                   // C4 on the first date
+        C <- {<i,j,r> in C : i in I or j in J}
     if C = {} then break
     <i,j,r> <- argmax over C of q(<i,j,r>)
-    if X = Y and S != {} and q(<i,j,r>) <= 0 then break         // no profitable pair left
+    // stop when no profitable pair is left
+    if X = Y and S != {} and q(<i,j,r>) <= 0 then break
     S <- S + {<i,j,r>}; FM <- FM - {i}; FW <- FW - {j}
     if r = F then X <- X + 1 else Y <- Y + 1
-while X != Y: remove the last date added from S (and update X, Y)   // repair C3
+// repair C3
+while X != Y: remove the last date added to S, update X, Y
 if no date in S involves I or J then return INFEASIBLE
 return S, sum of the scores of S
 ```
@@ -53,15 +56,17 @@ return S, sum of the scores of S
 *Greedy function (min):* $q(i, Y) = T_i slash |M(i) without Y|$ if $M(i) without Y != emptyset$, $+infinity$ otherwise — the time spent per _newly_ convinced neighbour.
 
 *Pseudocode:*
-```
+```pseudo
 X <- {}; Y <- {}
 while |Y| < n/2 do
     C <- { i not in X : M(i) \ Y nonempty }
-    if C = {} then return INFEASIBLE        // never happens: M[i][i] = 1
+    if C = {} then return INFEASIBLE   // never: M[i][i] = 1
     i* <- argmin over C of T_i / |M(i) \ Y|
     X <- X + {i*}; Y <- Y + M(i*)
-for each i in X, in the order selected:     // optional clean-up
-    if |union of M(j), j in X - {i}| >= n/2 then X <- X - {i}
+// optional clean-up
+for each i in X, in the order selected:
+    if |union of M(j), j in X - {i}| >= n/2 then
+        X <- X - {i}
 return X, sum of T_i over X
 ```
 *Remarks.* The clean-up removes visits made redundant by later ones. It is still myopic: Chapter 15 shows a six-neighbour instance where it picks neighbours 1 and 3 (time 7) although visiting 2 and 3 (time 6) suffices, and a chromosome that leads the same greedy to the optimum. Over 300 random instances it was optimal 260 times, 4.5 % above the optimum on average.]
@@ -75,10 +80,11 @@ return X, sum of T_i over X
 *Greedy function (min):* $q(i, S) = sum_(j in "Need"(i, S)) c_(i j)$, the training cost added by $i$; $+infinity$ if $|"Need"(i, S)| > M$ or some $j in "Need"(i, S)$ already has $M$ courses (C3). Ties (always at the first step, where $q = 0$) are broken by the smallest $"deg"(i)$: astronauts who worked with many others make later additions cheap.
 
 *Pseudocode:*
-```
+```pseudo
 S <- {}; courses[i] <- 0 for all i
 while |S| < K do
-    C <- { i not in S : |Need(i,S)| <= M and courses[j] < M for all j in Need(i,S) }
+    C <- { i not in S : |Need(i,S)| <= M and
+           courses[j] < M for all j in Need(i,S) }
     if C = {} then return INFEASIBLE
     i* <- argmin over C of ( q(i,S), deg(i) )
     for j in Need(i*,S): courses[j] <- courses[j] + 1

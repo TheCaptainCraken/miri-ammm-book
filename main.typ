@@ -2,7 +2,6 @@
 // template (@local/craken), through the helpers in template.typ.
 // Each chapter(slug, …) is one page of the website (slug.html); in the PDF it does nothing.
 #import "template.typ": *
-#import "@local/craken:0.1.0": chapter
 
 #show: book.with(
   title: "From the model to the heuristic",

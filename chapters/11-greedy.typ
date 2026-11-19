@@ -36,14 +36,16 @@ A greedy algorithm builds a solution one element at a time, always adding the ca
 + an *objective function* $f(S)$;
 + a *solution function*: is $S$ complete?
 
-```
+```pseudo
 initialize the candidate set C
 S <- {}
 while S is not a solution:
     evaluate q(e, S) for every e in C
-    e_best <- argmax { q(e, S) : e in C }     (or argmin, for a cost)
+    // argmax for a quality, argmin for a cost
+    e_best <- argmax { q(e, S) : e in C }
     S <- S + {e_best}
-    update C  (remove e_best; remove candidates that became infeasible)
+    update C: remove e_best and every candidate
+              that became infeasible
 return f(S), S
 ```
 
@@ -77,13 +79,14 @@ Candidates are pairs $chevron.l t, c chevron.r$. Tasks are processed in decreasi
 $ q(chevron.l t, c chevron.r, S) = ("usedCapacity"(c, S) + r_t) / R_c quad "(the load of " c " if " t " goes there)", $
 minimized over the computers where $t$ still fits.
 
-```
+```pseudo
 S <- {} ; for each c: used[c] <- 0
 for each t in T sorted by r_t decreasing:
-    C(t) <- { c : used[c] + r_t <= R_c }          // feasible computers
+    C(t) <- { c : used[c] + r_t <= R_c }  // feasible
     if C(t) = {} then return INFEASIBLE
     c_best <- argmin { (used[c] + r_t) / R_c : c in C(t) }
-    used[c_best] <- used[c_best] + r_t ; S <- S + {<t, c_best>}
+    used[c_best] <- used[c_best] + r_t
+    S <- S + {<t, c_best>}
 return S, max_c used[c] / R_c
 ```
 

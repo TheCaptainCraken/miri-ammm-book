@@ -31,12 +31,13 @@ For assignment problems the elements are pairs (user, access point): if two assi
 
 Given two good solutions, an *initiating* solution $a$ and a *guiding* solution $b$, path relinking builds a path from $a$ to $b$: at each step it adds to the current solution one element of $b$ that it does not have yet (removing what becomes incompatible), choosing the element that gives the best cost. The best solution met along the path is returned.
 
-```
+```pseudo
 f* <- min{f(a), f(b)};  x* <- argmin{f(a), f(b)}
 x <- a
 while x != b:
-    u* <- argmin { f(x + u) : u in b \ x }      // best step towards b
-    x <- x + {u*}                                // (remove v in x \ b to keep x feasible)
+    // best step towards b
+    u* <- argmin { f(x + u) : u in b \ x }
+    x <- x + {u*}  // (remove v in x \ b to keep x feasible)
     if f(x) < f*: f* <- f(x); x* <- x
 return x*
 ```
@@ -81,13 +82,14 @@ When $S$ enters, the solution that leaves is the closest $S'$ to $S$ among those
 
 Heuristics combine well. *GRASP + PR*: each GRASP iteration builds and improves a solution; then, with some probability, it is relinked with a random elite solution, and the best solution of the path is offered to the elite set. GRASP supplies diversification, PR intensification. The slides' last example is a *multi-greedy + PR*: three different randomized constructions (one fast, two slower but better) feed a local search and a shared elite set; the fast greedy gives feasible solutions within 20–50 ms, the others close the optimality gap given more time — the kind of trade-off the network applications of Chapter 10 need.
 
-```
+```pseudo
 ES <- {}; best <- none
 for it = 1 to maxIter:
     S <- LocalSearch(RandomizedGreedy(alpha))
     if ES is not empty and random() < pPR:
         S' <- random element of ES
-        S <- best of PathRelinking(S, S') (and/or PathRelinking(S', S))
+        S <- best of PathRelinking(S, S')
+             (and/or PathRelinking(S', S))
     UpdateES(S); if S better than best: best <- S
 return best
 ```

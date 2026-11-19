@@ -46,9 +46,12 @@ Answer everything! Pretests, Your turn, Stop boxes, exercises. Do it in one plac
 The sources include a ready logbook, `logbook.typ`, with three functions:
 
 ```typ
-#session("12 Nov")                              // a study session, by date
-#exercise("ch4-p3")[my answer ...]              // one item, with the id printed in the book
-#mistake[what I did][what I should have done]   // inside an exercise
+// a study session, by date
+#session("12 Nov")
+// one item, with the id printed in the book
+#exercise("ch4-p3")[my answer ...]
+// inside an exercise
+#mistake[what I did][what I should have done]
 ```
 
 A mistake is shown in red inside its exercise and is listed, with its id and date, on the *first page* of the logbook. The routine:

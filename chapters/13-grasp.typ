@@ -28,12 +28,12 @@ An alternative is a *cardinality-based* RCL: the $k$ best candidates. The value-
 
 == The algorithm
 
-```
+```pseudo
 S* <- none
-for k = 1 to maxIter:                 // or until a time limit
-    S <- RandomizedGreedy(alpha)        // construction phase
-    if S is infeasible: S <- Repair(S)  // optional
-    S <- LocalSearch(S)                 // improvement phase
+for k = 1 to maxIter:                // or until a time limit
+    S <- RandomizedGreedy(alpha)     // construction phase
+    if S infeasible: S <- Repair(S)  // optional
+    S <- LocalSearch(S)              // improvement phase
     if S* = none or f(S) < f(S*): S* <- S
 return S*
 
@@ -41,7 +41,8 @@ RandomizedGreedy(alpha):
     S <- {}; initialize C
     while S is not complete:
         compute q(e, S) for e in C; qmin, qmax
-        RCL <- { e in C : q(e, S) <= qmin + alpha (qmax - qmin) }
+        RCL <- { e in C :
+                 q(e, S) <= qmin + alpha (qmax - qmin) }
         e <- random element of RCL
         S <- S + {e}; update C
     return S
