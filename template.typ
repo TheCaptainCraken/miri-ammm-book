@@ -356,10 +356,14 @@
 
 // ================================================================== parts ===
 #let part(num, title, blurb: none) = context if target() != "paged" {
-  // Website: the part is a short lede at the top of its first chapter's page.
+  // Website: a part opener at the top of its first chapter's page; the
+  // chapter's own opener follows after a wide space.
   [#metadata((num: num, title: title))<partmark>]
-  ck.lede[Part #num · #title]
-  if blurb != none { blurb }
+  _el("section", class: "bk-part", {
+    _el("p", class: "label bk-part__kicker")[Part #_el("span", class: "bk-part__num", num)]
+    _el("p", class: "bk-part__title", title)
+    if blurb != none { _el("div", class: "bk-part__blurb", blurb) }
+  })
 } else {
   pagebreak(weak: true, to: if _print { "odd" } else { none })
   [#metadata((num: num, title: title))<partmark>]
