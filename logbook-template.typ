@@ -4,7 +4,7 @@
 // Exports:  logbook (the page setup + the mistakes list on page one, used as #show: logbook),
 //           session, exercise, mistake (explained at the top of logbook.typ).
 
-#import "@local/craken:0.1.0": palette, palettes, theme, fonts, type-size, line-height, spacing, radii, label-text, sucker
+#import "@local/craken:0.2.0": palette, palettes, theme, fonts, type-size, line-height, spacing, radii, label-text, sucker
 
 #let _lead(size, height) = height - size
 #let now = state("now", (date: "", id: ""))   // current session date and exercise id

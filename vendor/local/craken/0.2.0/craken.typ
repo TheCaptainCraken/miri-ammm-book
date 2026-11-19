@@ -6,7 +6,7 @@
 //    • web: a static site, one page per chapter, styled by web/craken.css,
 //      which carries the design system's tokens and ck-* components
 //
-//    typst init @local/craken:0.1.0 my-book          (after ./install.sh)
+//    typst init @local/craken:0.2.0 my-book          (after ./install.sh)
 //    typst compile book.typ                           (A4 PDF)
 //    typst compile --input edition=print book.typ book-print.pdf
 //    typst compile --input theme=lantern book.typ     (dark PDF)
@@ -234,14 +234,10 @@
 
 // ── Callouts: Tip, Question, Try this ────────────────────────────────────────
 
-#let solution-store = state("craken-solutions", ())
-#let answer-counter = counter("craken-answer")
 
 // The answer under a question, set upside-down at the foot of the box (print).
 #let _answer-flipped(answer) = {
-  v(spacing.s4, weak: true)
-  line(length: 100%, stroke: 0.5pt + palette.rule)
-  v(spacing.s2, weak: true)
+  v(spacing.s6, weak: true)
   rotate(180deg, reflow: true, block(width: 100%, {
     set text(size: type-size.caption, fill: palette.ink-soft)
     set par(leading: _lead(type-size.caption, line-height.caption), justify: false)
@@ -251,26 +247,38 @@
   }))
 }
 
+// Chapter range helpers: the part of the book from the last chapter heading
+// before `loc` to the next one after it. Locations, not counters, so the
+// answers and solutions settle in as few layout passes as possible.
+#let _after-chapter-start(sel, loc) = {
+  let prev = query(heading.where(level: 1).before(loc))
+  if prev.len() > 0 { sel.after(prev.last().location()) } else { sel }
+}
+#let _before-chapter-end(sel, loc) = {
+  let next = query(heading.where(level: 1).after(loc, inclusive: false))
+  if next.len() > 0 { sel.before(next.first().location()) } else { sel }
+}
+
 // A4 edition: nobody turns a screen upside-down, so the answer moves to the
 // chapter's solutions and the question links to it (and back).
-#let _answer-linked(answer) = {
-  answer-counter.step()
-  context {
-    let n = answer-counter.get().first()
-    let there = label("craken-answer-" + str(n))
-    [#metadata("question") #label("craken-question-" + str(n))]
-    let chapter = counter(heading).get().first()
-    let collected = query(<craken-solutions-here>).any(m => m.value.all or m.value.chapter == chapter)
-    if not collected { return _answer-flipped(answer) } // no solutions() for this chapter
-    solution-store.update(all => all + ((chapter: chapter, kind: "answer", num: n, body: answer),))
-    v(spacing.s4, weak: true)
-    set text(size: type-size.caption, fill: palette.ink-soft)
-    label-text(fill: palette.rust)[Answer]
-    h(spacing.s2)
-    // the page is known from the second layout pass on
-    let page = if query(there).len() > 0 { str(locate(there).page()) } else { "…" }
-    link(there)[on page #page]
-  }
+#let _answer-linked(answer) = context {
+  let me = here()
+  // Record the answer whatever happens, so solutions() never waits on the
+  // check below.
+  [#metadata((kind: "answer", body: answer, question: me))<craken-solution>]
+  let here-on = _before-chapter-end(selector(<craken-solutions-here>).after(me), me)
+  let collected = query(here-on).len() > 0 or query(<craken-solutions-here>).any(m => m.value.all)
+  if not collected { return _answer-flipped(answer) } // no solutions() for this chapter
+  v(spacing.s4, weak: true)
+  set text(size: type-size.caption, fill: palette.ink-soft)
+  label-text(fill: palette.rust)[Answer]
+  h(spacing.s2)
+  // the answer's page is known from the second layout pass on
+  let found = query(<craken-answer-here>).filter(m => m.value == me)
+  if found.len() > 0 {
+    let there = found.first().location()
+    link(there)[on page #there.page()]
+  } else [on page …]
 }
 
 #let _callout(body, kind, name, color, answer: none) = context {
@@ -298,6 +306,11 @@
       {
         label-text(fill: color)[#_sucker-paged(color, 6.5pt, true, 0.9pt) #h(spacing.s2) #name]
         v(spacing.s2, weak: true)
+        // Code sits on paper-warm; inside a callout (paper-warm too) it moves
+        // to paper. Show-set rules, not state: state costs layout passes.
+        show <craken-code-box>: set block(fill: palette.paper)
+        show raw.where(block: true): set block(fill: palette.paper)
+        show raw.where(block: false): set box(fill: palette.paper)
         body
         if answer != none {
           if _print { _answer-flipped(answer) } else { _answer-linked(answer) }
@@ -380,11 +393,10 @@
     }
     it
   }
-  block(
+  [#block(
     width: 100%,
     above: spacing.s8,
     below: spacing.s8,
-    fill: palette.paper-warm,
     radius: radii.m,
     clip: true,
     breakable: true,
@@ -392,8 +404,7 @@
       if title != none or lang != none {
         block(
           width: 100%,
-          inset: (x: spacing.s6, y: spacing.s2),
-          stroke: (bottom: 0.5pt + palette.rule),
+          inset: (x: spacing.s6, top: spacing.s4, bottom: 0pt),
           spacing: 0pt,
           sticky: true,
           {
@@ -407,12 +418,12 @@
       }
       block(width: 100%, inset: (x: spacing.s6, y: spacing.s4), spacing: 0pt, {
         set align(start)
-        _in-code.update(true)
+        // the code box is drawn here, so the code block itself goes bare
+        show raw.where(block: true): set block(fill: none, inset: 0pt, radius: 0pt, above: 0pt, below: 0pt)
         body
-        _in-code.update(false)
       })
     },
-  )
+  )<craken-code-box>]
 }
 
 /// A numbered listing ("Listing 1.2") with a caption: code() inside a figure.
@@ -475,8 +486,7 @@
       width: 100%,
       above: 0pt,
       below: 0pt,
-      inset: (y: spacing.s6),
-      stroke: (top: 0.5pt + palette.rule),
+      inset: (y: spacing.s4),
       breakable: true,
       {
         set align(start)
@@ -488,15 +498,15 @@
       },
     )
     if solution != none {
-      solution-store.update(all => all + ((chapter: chapter, num: num, body: solution),))
+      [#metadata((kind: "exercise", num: num, body: solution))<craken-solution>]
     }
   },
 )
 
-/// Wraps a run of exercises so the last one gets a closing hairline.
+/// Wraps a run of exercises.
 #let exercises(body) = context {
   if _web() { _el("div", class: "ck-exercises", body) } else {
-    block(width: 100%, above: spacing.s8, below: spacing.s8, stroke: (bottom: 0.5pt + palette.rule), body)
+    block(width: 100%, above: spacing.s8, below: spacing.s8, body)
   }
 }
 
@@ -504,21 +514,22 @@
 /// every chapter). Web: nothing, as solutions sit under their exercises.
 #let solutions(all: false, title: [Solutions]) = context {
   if _web() { return }
-  let chapter = counter(heading).get().first()
-  [#metadata((chapter: chapter, all: all)) <craken-solutions-here>]
-  let items = solution-store.final().filter(s => all or s.chapter == chapter)
+  let me = here()
+  [#metadata((all: all))<craken-solutions-here>]
+  let sel = selector(<craken-solution>).before(me)
+  if not all { sel = _after-chapter-start(sel, me) }
+  let items = query(sel).map(m => m.value)
   if title != none and items.len() > 0 { heading(level: 2, numbering: none, title) }
   for s in items {
-    if s.at("kind", default: "exercise") == "answer" {
-      let back = label("craken-question-" + str(s.num))
-      [#block(above: spacing.s6, below: spacing.s6, breakable: true, {
+    if s.kind == "answer" {
+      [#metadata(s.question)<craken-answer-here>]
+      block(above: spacing.s6, below: spacing.s6, breakable: true, {
           label-text(fill: palette.rust)[Answer]
           h(spacing.s2)
-          let page = if query(back).len() > 0 { str(locate(back).page()) } else { "…" }
-          text(size: type-size.caption, fill: palette.ink-soft, link(back)[to the question on page #page])
+          text(size: type-size.caption, fill: palette.ink-soft, link(s.question)[to the question on page #s.question.page()])
           v(spacing.s2, weak: true)
           s.body
-        }) #label("craken-answer-" + str(s.num))]
+        })
     } else {
       block(above: spacing.s6, below: spacing.s6, breakable: true, {
         label-text(fill: palette.moss)[Solution #s.num]
@@ -591,7 +602,8 @@
 /// The letter on the home page when book(note: auto): what the book is, how it
 /// talks to you, signed by the author.
 #let _default-note(meta) = {
-  if meta.description != none { meta.description }
+  // a div, so a one-paragraph description (no <p> of its own) keeps its spacing
+  if meta.description != none { _el("div", class: "ck-letter__description", meta.description) }
   par[
     The book talks to you in a few ways. A #_mark("tip", [Tip]) is a trick worth keeping.
     A #_mark("question", [Question]) asks you to stop and answer before you read on; the answer waits behind a toggle.
@@ -619,11 +631,11 @@
   //    with index tabs on the right page's top edge as the two ways in.
   _el("div", class: "ck-desk", _el("section", class: "ck-spread", {
     _el("div", class: "ck-spread__verso", {
-      if meta.logo-src != none {
+      if meta.cover-src != none {
         _el("figure", class: "ck-frontis", {
           _el("div", class: "ck-frontis__plate", _el("img", attrs: (
-            src: meta.logo-src,
-            alt: "Captain Craken, half pirate and half kraken",
+            src: meta.cover-src,
+            alt: meta.cover-alt,
           )))
           if meta.frontispiece != none { _el("figcaption", class: "ck-frontis__caption caption", meta.frontispiece) }
         })
@@ -667,7 +679,19 @@
     _el("section", class: "ck-contents", {
       _el("h2", class: "ck-contents__title")[Contents]
       _el("ol", class: "ck-contents__list", {
+        let parts = query(<craken-part>)
+        let shown = 0
         for (i, ch) in chapters.enumerate() {
+          // the parts that open before this chapter, each listed once
+          let k = query(selector(<craken-part>).before(ch.location())).len()
+          for j in range(shown, k) {
+            let p = parts.at(j)
+            _el("li", class: "ck-contents__part", {
+              _el("span", class: "ck-contents__part-num label")[Part #numbering("I", j + 1)]
+              _el("h3", class: "ck-contents__part-name", link(chapters.at(i).location(), p.value.title))
+            })
+          }
+          shown = calc.max(shown, k)
           let sections = between(heading.where(level: 2), i)
           let exercises = between(figure.where(kind: "exercise"), i).len()
           let ledes = between(selector(<craken-lede>), i)
@@ -721,6 +745,49 @@
   )
 }
 
+/// The footnotes of a web page, listed at the end of its text.
+#let _footnotes(notes) = if notes.len() > 0 {
+  _el("section", class: "ck-footnotes caption", attrs: (role: "doc-endnotes"), _el("ol", {
+    for f in notes {
+      let k = str(counter(footnote).at(f.location()).first())
+      _el("li", attrs: (id: "fn-" + k), {
+        _el("a", class: "ck-footnotes__num", attrs: (href: "#fnref-" + k, role: "doc-backlink"), numbering(
+          f.numbering,
+          ..counter(footnote).at(f.location()),
+        ))
+        f.body
+      })
+    }
+  }))
+}
+
+/// Opens a part: a group of chapters. Chapters keep their numbers across parts.
+/// PDF: a part title page (on a right-hand page in print), listed in the
+/// contents. Web: a heading in the home page's contents, and a banner on the
+/// part's first chapter. Put it between chapters in book.typ:
+///   #part[Foundations]
+///   #chapter("recursion", include "chapters/recursion.typ")
+#let part(title, intro: none) = {
+  [#metadata((title: title, intro: intro))<craken-part>]
+  context {
+    if _web() or _site() { return }
+    [#metadata("part")<craken-chapter-end>]
+    pagebreak(weak: true, to: if _print { "odd" } else { none })
+    v(1fr)
+    figure(
+      kind: "craken-part",
+      supplement: [Part],
+      numbering: "I",
+      caption: title,
+      outlined: true,
+      intro,
+    )
+    v(2fr)
+    [#metadata("part")<craken-chapter-end>]
+    pagebreak(weak: true)
+  }
+}
+
 /// Marks one chapter. In print it does nothing; in the site it becomes its own
 /// page, `<slug>.html`.
 #let chapter(slug, body) = context {
@@ -731,7 +798,13 @@
     _el("script", attrs: (src: "craken.js"))
     html.link(rel: "stylesheet", href: "craken.css")
     _topbar()
-    _el("main", class: "ck-page ck-book body", body)
+    _el("main", class: "ck-page ck-book body", {
+      body
+      context {
+        let k = _chapter-counter.get()
+        _footnotes(query(footnote).filter(f => _chapter-counter.at(f.location()) == k))
+      }
+    })
     _pager()
     _footer()
   })
@@ -750,6 +823,23 @@
     counter(figure.where(kind: table)).update(0)
     counter(figure.where(kind: "exercise")).update(0)
     note-counter.update(0)
+    // The first chapter of a part opens with the part's banner.
+    context {
+      let parts = query(selector(<craken-part>).before(here()))
+      if parts.len() == 0 { return }
+      let p = parts.last()
+      let between = query(heading.where(level: 1).after(p.location()).before(it.location(), inclusive: false))
+      if between.len() > 0 { return }
+      _el("section", class: "ck-part", {
+        _el("p", class: "ck-part__kicker", _el("span", class: "label")[Part] + [ ] + _el(
+          "span",
+          class: "ck-part__numeral",
+          numbering("I", parts.len()),
+        ))
+        _el("h2", class: "ck-part__title", p.value.title)
+        if p.value.intro != none { _el("div", class: "ck-part__intro lede", p.value.intro) }
+      })
+    }
     _el("header", class: "ck-chapter", {
       if it.numbering != none {
         _el(
@@ -795,6 +885,44 @@
     if _in-code.get() { it } else { _el("figure", class: "ck-code", it) }
   }
 
+  // Block quotes: the attribution set flush right, as in the PDF.
+  show quote.where(block: true): it => _el("blockquote", class: "ck-quote", {
+    _el("p", it.body)
+    if it.attribution != none {
+      let who = if type(it.attribution) == label { cite(it.attribution) } else { it.attribution }
+      _el("p", class: "ck-quote__attribution")[— #who]
+    }
+  })
+
+  // Footnotes: a numbered link here; the notes are listed at the end of the
+  // chapter (see chapter()), not after the page footer.
+  show footnote: it => context {
+    let n = counter(footnote).display(it.numbering)
+    let k = str(counter(footnote).get().first())
+    _el("sup", class: "ck-fn-ref", attrs: (id: "fnref-" + k), _el("a", attrs: (href: "#fn-" + k), n))
+  }
+  // Typst still writes its own (now empty) endnotes after the page; the
+  // stylesheet hides them.
+  show footnote.entry: none
+
+  // Tables: natural width unless a column is fractional; cells keep the
+  // alignment given in Typst (the stylesheet's default otherwise).
+  show table: it => {
+    let cols = if type(it.columns) == array { it.columns } else { () }
+    let full = cols.any(c => type(c) == fraction)
+    _el("div", class: if full { "ck-table ck-table--full" } else { "ck-table" }, it)
+  }
+  show table.cell: it => {
+    let a = it.align
+    let x = if type(a) == alignment {
+      if a.axis() == "horizontal" { a } else if a.axis() == none { a.x } else { none }
+    } else { none }
+    let name = if x == left or x == start { "left" } else if x == right or x == end { "right" } else if x == center {
+      "center"
+    } else { none }
+    if name == none { it.body } else { _el("span", class: "ck-align ck-align--" + name, it.body) }
+  }
+
   set figure(numbering: (..n) => {
     let chapter = counter(heading).get().first()
     numbering("1.1", chapter, ..n)
@@ -823,11 +951,26 @@
 
 // ── Print rules (PDF) ────────────────────────────────────────────────────────
 
-// Pages left empty by `pagebreak(to: "odd")` before a chapter get no header or folio.
+// Pages left empty by `pagebreak(to: "odd")` before a chapter or a part get no
+// header or folio. Chapters and parts drop a <craken-chapter-end> marker where
+// the text before them ends; a page is blank if it falls after the last such
+// marker and before the next opener. A marker at the very top of a page marks
+// nothing (the page was already empty), so it doesn't count.
 #let _is-blank(p) = {
-  let starts = query(heading.where(level: 1)).map(it => it.location().page())
-  let ends = query(<craken-chapter-end>).map(it => it.location().page())
-  range(calc.min(starts.len(), ends.len())).any(i => ends.at(i) < p and p < starts.at(i))
+  let openers = (
+    query(heading.where(level: 1)).map(it => it.location().page())
+      + query(figure.where(kind: "craken-part")).map(it => it.location().page())
+  )
+  if p in query(figure.where(kind: "craken-part")).map(it => it.location().page()) { return true }
+  let next = openers.filter(s => s > p)
+  if next.len() == 0 { return false }
+  let s = calc.min(..next)
+  let ends = query(<craken-chapter-end>)
+    .map(it => it.location().position())
+    .filter(pos => pos.page < s and pos.y > page-grid.top + 1pt)
+    .map(pos => pos.page)
+  let e = if ends.len() > 0 { calc.max(..ends) } else { 0 }
+  e < p
 }
 
 #let _paged-rules(body, justify: true) = {
@@ -879,10 +1022,27 @@
   )
   set par(leading: _lead(type-size.body, line-height.body), spacing: spacing.s4, justify: justify)
   show strong: set text(weight: 600)
+  set footnote.entry(separator: none, clearance: spacing.s8)
   show link: set text(fill: palette.rust)
   show ref: it => if _print { it } else { text(fill: palette.rust, it) }
-  set list(marker: text(fill: palette.ink-soft)[–], indent: 0pt, body-indent: spacing.s4)
-  set enum(indent: 0pt, body-indent: spacing.s4)
+  // Lists: a plain coral dot (no ring, so it can't be mistaken for the
+  // sucker on callouts), then a short dash, then a small dot, both ink-soft;
+  // label-face numerals in rust for numbered lists.
+  let dot(r, fill) = box(width: 2 * r, height: 0.5em, baseline: 0pt, place(left + horizon, circle(radius: r, fill: fill)))
+  set list(
+    marker: (
+      dot(2.1pt, palette.coral),
+      box(width: 5pt, height: 0.5em, place(left + horizon, line(length: 5pt, stroke: 0.9pt + palette.ink-soft))),
+      dot(1.3pt, palette.ink-soft),
+    ),
+    indent: 0pt,
+    body-indent: spacing.s4,
+  )
+  set enum(
+    numbering: n => text(font: fonts.label, weight: 600, fill: palette.rust, number-type: "lining", str(n) + "."),
+    indent: 0pt,
+    body-indent: spacing.s4,
+  )
 
   // Headings: chapters (level 1), sections (2), subsections (3).
   set heading(numbering: "1.1")
@@ -959,22 +1119,18 @@
   set raw(theme: "themes/craken-" + theme + ".tmTheme")
   show raw: set text(font: fonts.mono, size: type-size.code, fill: palette.ink, hyphenate: false)
   show raw.where(block: true): set par(leading: _lead(type-size.code, line-height.code), justify: false)
-  show raw.where(block: true): it => context {
-    if _in-code.get() { it } else {
-      block(
-        width: 100%,
-        above: spacing.s8,
-        below: spacing.s8,
-        inset: (x: spacing.s6, y: spacing.s4),
-        fill: palette.paper-warm,
-        radius: radii.m,
-        it,
-      )
-    }
-  }
-  show raw.where(block: false): set text(size: 0.86 * type-size.body)
-  show raw.where(block: false): it => box(
+  show raw.where(block: true): set block(
+    width: 100%,
+    above: spacing.s8,
+    below: spacing.s8,
+    inset: (x: spacing.s6, y: spacing.s4),
     fill: palette.paper-warm,
+    radius: radii.m,
+  )
+  show <craken-code-box>: set block(fill: palette.paper-warm)
+  show raw.where(block: false): set text(size: 0.86 * type-size.body)
+  show raw.where(block: false): set box(fill: palette.paper-warm)
+  show raw.where(block: false): it => box(
     radius: radii.s,
     inset: (x: 1.5pt),
     outset: (y: 2pt),
@@ -990,6 +1146,34 @@
   show figure: set block(above: spacing.s8, below: spacing.s8)
   show figure.where(kind: "exercise"): set block(above: 0pt, below: 0pt, breakable: true)
   show figure.where(kind: "exercise"): it => it.body
+  show figure.where(kind: "craken-part"): it => block(width: 100%, {
+    set align(start)
+    label-text(it.supplement)
+    v(spacing.s2, weak: true)
+    text(
+      font: fonts.display,
+      weight: 500,
+      size: type-size.chapter-numeral,
+      fill: palette.coral,
+      top-edge: "cap-height",
+      bottom-edge: "baseline",
+      it.counter.display(it.numbering),
+    )
+    v(spacing.s8, weak: true)
+    block(width: 88%, {
+      set text(font: fonts.display, weight: 600, size: type-size.chapter-title, hyphenate: false)
+      set par(leading: _lead(type-size.chapter-title, line-height.chapter-title), justify: false)
+      it.caption.body
+    })
+    if it.body != none and it.body != [] {
+      v(spacing.s8, weak: true)
+      block(width: 88%, {
+        set text(size: type-size.lede)
+        set par(leading: _lead(type-size.lede, line-height.lede), justify: false)
+        it.body
+      })
+    }
+  })
   show figure.caption: it => block(width: 100%, above: spacing.s4, {
     set align(start)
     set text(size: type-size.caption, fill: palette.ink-soft)
@@ -1001,27 +1185,49 @@
 
   // Tables: hairlines, no boxes, tabular figures.
   set table(
-    stroke: (x, y) => (top: if y <= 1 { 0.5pt + palette.ink-soft } else { 0pt }, bottom: 0.5pt + palette.rule),
+    align: (x, _) => if x == 0 { start } else { end },
+    stroke: (_, y) => if y == 0 { (bottom: 0.5pt + palette.ink-soft) } else { none },
     inset: (x: spacing.s4, y: spacing.s2 + 1pt),
   )
   show table: set text(number-type: "lining", number-width: "tabular")
   show table.cell.where(y: 0): set text(font: fonts.label, weight: 600, size: type-size.label, fill: palette.ink-soft)
 
   // Table of contents.
+  show outline.entry: it => {
+    let el = it.element
+    if el.func() != figure or el.kind != "craken-part" { return it }
+    block(above: spacing.s12, below: spacing.s4, link(el.location(), {
+      set text(fill: palette.ink)
+      label-text(fill: palette.rust)[#el.supplement #numbering(el.numbering, ..el.counter.at(el.location()))]
+      h(0.6em)
+      text(font: fonts.display, weight: 600, size: type-size.subsection, el.caption.body)
+      h(0.4em)
+      box(width: 1fr, repeat(gap: 0.25em)[.])
+      h(0.4em)
+      text(font: fonts.label, weight: 600, it.page())
+    }))
+  }
   show outline.entry.where(level: 1): set text(font: fonts.label, weight: 600)
   show outline.entry.where(level: 1): set block(above: spacing.s6)
 
   body
 }
 
-#let _paged-titlepage(title, subtitle, author, logo) = page(header: none, footer: none, {
+#let _paged-titlepage(title, subtitle, author, cover, cover-width, is-logo) = page(header: none, footer: none, {
   set par(justify: false)
   set text(hyphenate: false)
   v(1fr)
-  if logo != none {
-    let mark = box(width: if _print { 44mm } else { 54mm }, image(logo))
+  if cover != none {
+    let width = if cover-width != auto { cover-width } else if _print { 44mm } else { 54mm }
+    let mark = box(width: width, image(cover, width: 100%))
+    // On Lantern the picture keeps its paper ground: a disc for the round
+    // logo, a card for any other cover.
     if theme == "lantern" {
-      mark = circle(radius: 28mm, fill: palettes.paper.paper, inset: 0pt, align(center + horizon, mark))
+      mark = if is-logo {
+        circle(radius: 28mm, fill: palettes.paper.paper, inset: 0pt, align(center + horizon, mark))
+      } else {
+        box(fill: palettes.paper.paper, inset: 4mm, radius: radii.m, mark)
+      }
     }
     mark
     v(spacing.s12)
@@ -1051,33 +1257,39 @@
   title: none,
   subtitle: none,
   author: none,
-  logo: none, // the image's bytes: read("assets/captain-craken.png", encoding: none)
+  logo: none, // the image's bytes: read("assets/captain-craken.png", encoding: none); site: top bar
+  cover: auto, // the title page's picture (bytes, like logo); auto: the logo; none: no picture
+  cover-alt: "", // site: what the cover shows, for screen readers ("" if it is decoration)
+  cover-width: auto, // PDF: the cover's width on the title page (auto: 54mm A4, 44mm print)
   contents: true, // table of contents after the title page / on the site's home page
   justify: true, // print: justified and hyphenated; false for ragged right
   pdf: none, // site only: link to a PDF you copy into the site, e.g. "book.pdf"
   description: none, // site only: what the book is, opening the letter on the home page
   note: auto, // site only: the letter "To the reader" (auto: the default; none: no letter)
   series: none, // site only: a line above the title, e.g. "A Captain Craken book"
-  frontispiece: [], // site only: caption under the logo
+  frontispiece: none, // site only: caption under the cover picture
   homepage: none, // site only: your website, linked in the footer
   body,
 ) = {
   set document(title: title, author: if author != none { author } else { () })
   // The logo arrives as bytes (a package can't read your project's files);
   // its type is told by its first bytes, for its file name on the site.
-  let logo-src = if logo != none {
-    let ext = if logo.slice(0, 4) == bytes((0x89, 0x50, 0x4E, 0x47)) { "png" } else if logo.at(0) == 0xFF {
-      "jpg"
-    } else if logo.at(0) == 0x3C { "svg" } else if logo.slice(0, 4) == bytes("GIF8") { "gif" } else if (
-      logo.slice(0, 4) == bytes("RIFF")
-    ) { "webp" } else { "png" }
-    "assets/logo." + ext
-  }
+  let ext(img) = if img.slice(0, 4) == bytes((0x89, 0x50, 0x4E, 0x47)) { "png" } else if img.at(0) == 0xFF {
+    "jpg"
+  } else if img.at(0) == 0x3C { "svg" } else if img.slice(0, 4) == bytes("GIF8") { "gif" } else if (
+    img.slice(0, 4) == bytes("RIFF")
+  ) { "webp" } else { "png" }
+  let logo-src = if logo != none { "assets/logo." + ext(logo) }
+  let is-logo = cover == auto
+  let cover = if cover == auto { logo } else { cover }
+  let cover-src = if cover == none { none } else if is-logo { logo-src } else { "assets/cover." + ext(cover) }
   let meta = (
     title: title,
     subtitle: subtitle,
     author: author,
     logo-src: logo-src,
+    cover-src: cover-src,
+    cover-alt: cover-alt,
     pdf: pdf,
     description: description,
     note: note,
@@ -1095,6 +1307,7 @@
       asset("craken.js", read("web/craken.js"))
       for f in _web-fonts { asset("fonts/" + f, read("web/fonts/" + f, encoding: none)) }
       if logo != none { asset(logo-src, logo) }
+      if cover != none and not is-logo { asset(cover-src, cover) }
       document("index.html", title: title, _web-rules({
         _el("script", attrs: (src: "craken.js"))
         html.link(rel: "stylesheet", href: "craken.css")
@@ -1112,13 +1325,13 @@
         html.link(rel: "stylesheet", href: "web/craken.css")
         _topbar()
         _el("main", class: "ck-home ck-book body", _home(meta))
-        _el("main", class: "ck-page ck-book body", body)
+        _el("main", class: "ck-page ck-book body", body + context _footnotes(query(footnote)))
         _footer()
       })
     } else {
       _paged-rules(justify: justify, {
-        if title != none { _paged-titlepage(title, subtitle, author, logo) }
-        if contents { outline(depth: 2) }
+        if title != none { _paged-titlepage(title, subtitle, author, cover, cover-width, is-logo) }
+        if contents { outline(depth: 2, target: heading.where(outlined: true).or(figure.where(kind: "craken-part"))) }
         body
       })
     }

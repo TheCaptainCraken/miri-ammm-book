@@ -12,7 +12,7 @@ from matplotlib.patches import Polygon, Rectangle, FancyArrowPatch, Circle
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 # Newsreader Text, the craken text face, from the installed craken package
-CRAKEN_FONTS = os.path.expanduser("~/.local/share/typst/packages/local/craken/0.1.0/fonts")
+CRAKEN_FONTS = os.path.expanduser("~/.local/share/typst/packages/local/craken/0.2.0/fonts")
 for f in os.listdir(CRAKEN_FONTS):
     if f.startswith("NewsreaderText"):
         font_manager.fontManager.addfont(os.path.join(CRAKEN_FONTS, f))

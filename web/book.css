@@ -70,23 +70,3 @@ h3.bk-tier + .bk-exercise { margin-top: var(--space-4); }
 @media (max-width: 760px) {
   h3.bk-tier .bk-aside { display: block; margin-left: 0; }
 }
-
-/* Parts: an opener above the first chapter of each part, quieter than a
-   chapter's (no giant numeral), set apart by space alone. */
-.bk-part { padding-top: var(--space-24); max-width: 34em; }
-.bk-part__kicker { margin: 0; color: var(--coral); }
-.bk-part__num { margin-left: 0.25em; }
-.bk-part__title {
-  margin: var(--space-2) 0 var(--space-6);
-  font-family: var(--font-display); font-variation-settings: "SOFT" 100, "WONK" 0;
-  font-size: 40px; line-height: 46px; font-weight: 600; color: var(--ink);
-}
-.bk-part__blurb { font-size: 20px; line-height: 31px; color: var(--ink-soft); }
-.bk-part__blurb p { margin: 0 0 var(--space-4); }
-.bk-part + .ck-chapter { padding-top: var(--space-24); }
-@media (max-width: 760px) {
-  .bk-part { padding-top: var(--space-12); }
-  .bk-part__title { font-size: 30px; line-height: 36px; }
-  .bk-part__blurb { font-size: 18px; line-height: 28px; }
-  .bk-part + .ck-chapter { padding-top: var(--space-12); }
-}

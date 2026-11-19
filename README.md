@@ -9,7 +9,7 @@ past exams and worked answers. Written in [Typst](https://typst.app).
 ## Build
 
 ```sh
-F="--package-path vendor --font-path vendor/local/craken/0.1.0/fonts"
+F="--package-path vendor --font-path vendor/local/craken/0.2.0/fonts"
 typst compile $F main.typ                                  # A4
 typst compile $F --input theme=lantern main.typ dark.pdf   # dark
 typst compile $F --input edition=print main.typ print.pdf  # print

@@ -1,6 +1,6 @@
 // =============================================================================
 //  template.typ — the book's helpers, built on the Captain Craken template
-//  (@local/craken:0.1.0).  Craken gives the page, the type, the colours, the
+//  (@local/craken:0.2.0).  Craken gives the page, the type, the colours, the
 //  headings, code, tables, figures and callouts; this file only adds the
 //  study-book pieces craken does not have, drawn with craken's own tokens.
 //
@@ -13,6 +13,7 @@
 //    stopbox(id)[..]     pretest(id)[..]            revisit(id)[..]
 //    exercise(id, ..)[..]  tier(name)               answer(id)[..]     exref(id)
 //    btable(..)          fig(..)                    summary[..]        symbols(..)
+//    part(intro: ..)[..]   (craken's own, used in main.typ)
 //
 //  Craken's own helpers (tip, try-this, question, note, dfn, lede, sbreak,
 //  code, listing) are re-exported and can be used too.  Craken's numbered
@@ -24,8 +25,8 @@
 //  table in Appendix B follow automatically.
 // =============================================================================
 
-#import "@local/craken:0.1.0" as ck
-#import "@local/craken:0.1.0": (
+#import "@local/craken:0.2.0" as ck
+#import "@local/craken:0.2.0": (
   palette, palettes, theme, fonts, type-size, line-height, spacing, radii, page-grid, edition,
   label-text, sucker, sbreak, dfn, lede, tip, try-this, question, note, code, listing,
 )
@@ -355,47 +356,16 @@
 }) }
 
 // ================================================================== parts ===
-#let part(num, title, blurb: none) = context if target() != "paged" {
-  // Website: a part opener at the top of its first chapter's page; the
-  // chapter's own opener follows after a wide space.
-  [#metadata((num: num, title: title))<partmark>]
-  _el("section", class: "bk-part", {
-    _el("p", class: "label bk-part__kicker")[Part #_el("span", class: "bk-part__num", num)]
-    _el("p", class: "bk-part__title", title)
-    if blurb != none { _el("div", class: "bk-part__blurb", blurb) }
-  })
-} else {
-  pagebreak(weak: true, to: if _print { "odd" } else { none })
-  [#metadata((num: num, title: title))<partmark>]
-  v(spacing.s24 * 2)
-  label-text[Part]
-  v(spacing.s2, weak: true)
-  text(font: fonts.display, weight: 500, size: type-size.chapter-numeral, fill: palette.coral,
-    top-edge: "cap-height", bottom-edge: "baseline", num)
-  v(spacing.s8, weak: true)
-  block(width: 88%, {
-    set text(font: fonts.display, weight: 600, size: type-size.chapter-title, hyphenate: false)
-    set par(leading: _lead(type-size.chapter-title, line-height.chapter-title), justify: false)
-    title
-  })
-  if blurb != none {
-    v(spacing.s12)
-    block({
-      set text(size: type-size.lede)
-      set par(leading: _lead(type-size.lede, line-height.lede), justify: false)
-      blurb
-    })
-  }
-  pagebreak()
-}
+// Parts are craken's own #part (put in main.typ, between chapters).
+#let part = ck.part
 
 // Table of contents with parts, chapters and page numbers.
 #let contents() = context {
-  let items = query(selector(heading.where(level: 1)).or(<partmark>))
+  let items = query(selector(heading.where(level: 1)).or(figure.where(kind: "craken-part")))
   for it in items {
-    if it.func() == metadata {
-      block(above: spacing.s12, below: spacing.s4, sticky: true,
-        label-text(fill: palette.rust)[Part #it.value.num #h(spacing.s4) #it.value.title])
+    if it.func() == figure {
+      block(above: spacing.s12, below: spacing.s4, sticky: true, link(it.location(),
+        label-text(fill: palette.rust)[Part #numbering(it.numbering, ..it.counter.at(it.location())) #h(spacing.s4) #it.caption.body]))
     } else {
       let num = if it.numbering != none { str(counter(heading).at(it.location()).first()) } else { "" }
       block(above: spacing.s4, below: spacing.s4, link(it.location(), {
@@ -448,8 +418,8 @@
   // Running head as craken's, but not on the cover, the contents or part pages.
   set page(header: context {
     let p = here().page()
+    // craken counts part pages as blank too
     if p <= 2 or ck._is-blank(p) { return }
-    if query(<partmark>).any(m => m.location().page() == p) { return }
     let chapters = query(heading.where(level: 1))
     if chapters.any(ch => ch.location().page() == p) { return }
     let before = chapters.filter(ch => ch.location().page() < p)
