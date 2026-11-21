@@ -1,14 +1,7 @@
 #import "../template.typ": *
 
-// The contents page has no heading of its own, so it does not list itself.
-#context if target() == "paged" { page(header: none)[
-  #v(28mm)
-  #block(below: spacing.s12, text(font: fonts.display, weight: 600, size: type-size.chapter-title)[Contents])
-  #contents()
-] }
-
-#unnumbered[Preface]
 #set heading(numbering: none)
+= Preface
 
 This book prepares you for the final exam of Algorithmic Methods for Mathematical Models (AMMM), in the Advanced Computing specialization of the Master in Innovation and Research in Informatics at UPC. It follows the course in its order:
 
@@ -33,9 +26,9 @@ It is not a summary. A summary helps you recognize the material; the exam asks y
 - *Think first* prompts: stop and explain the point to yourself before reading on.
 - *Stop and answer* boxes at the end of sections: answer from memory, then check. This is the single most effective thing in the book! Do not skip them.
 - *The chapter in five lines*: the summary to put on flashcards.
-- *Exercises* in tiers: *Warm-up* (a few minutes each to get you going), *Practice* (one technique at a time), *Exam level* (past exam questions and look-alikes that mix techniques), *CPLEX/OPL* (lab work), and *Spaced review* (questions from earlier chapters). Each exercise shows its source and an estimated time.
+- *Exercises* in tiers: *Warm-up* (a few minutes each to get you going), *Practice* (one technique at a time), *Exam level* (past exam questions and look-alikes that mix techniques), *CPLEX/OPL* (lab work), and *Spaced review* (questions from earlier chapters). Each exercise shows its source and an estimated time, and is rated from one to three suckers by that time.
 
-*Keep a logbook* (see below). *Answers are at the back*, in chapter order. Every exercise number is a link to its answer and back. Past exam questions are tagged with their source ("Final Jun 2024 - Q1"); Appendix B lists where each of them is in the book.
+*Keep a logbook* (see below). *Answers are at the end of each chapter*, under Solutions; each Your turn and Stop box links to its answer and back. On the website every answer hides under its question instead. Past exam questions are tagged with their source ("Final Jun 2024 - Q1"); Appendix B lists where each of them is in the book.
 
 *Margin notes "On the slides"* mark places where a slide (or an official solution, or an exercise sheet) contains an error, a misleading shortcut or a convention different from the book's. Each says what the slide says, what is correct and why. Appendix A collects all of them.
 
@@ -58,7 +51,7 @@ A mistake is shown in red inside its exercise and is listed, with its id and dat
 
 + *Start every session on page one.* Read the mistakes list, pick two or three, and redo those exercises from scratch without looking at the old answer.
 + *Then study* the new material, writing each answer under today's session.
-+ *Check against the answers at the back* and write a `#mistake` for every slip, however small: a sign, a forgotten index, a wrong direction of the objective. "I did … / should …", one line each.
++ *Check against the solutions at the end of the chapter* and write a `#mistake` for every slip, however small: a sign, a forgotten index, a wrong direction of the objective. "I did … / should …", one line each.
 
 The last week before the exam, the list on page one is your revision plan.
 
@@ -73,9 +66,9 @@ The final counts for 60 % of the course mark. The project for the other 40 %.
 
 == Notation used throughout
 
-#btable(
+#table(align: left, 
   columns: (auto, 1fr, auto),
-  header: ([symbol], [meaning], [chapters]),
+  table.header([symbol], [meaning], [chapters]),
   [$x_j$],
   [decision variable; $x >= 0$ unless declared free],
   [all],
@@ -133,3 +126,5 @@ Where the slides use one letter for several things, the book keeps the meanings 
 The course slides, lab statements, exercise sheets, past exams and their solutions are by Prof. *Enric Rodríguez-Carbonell* (linear, integer and non-linear programming) and Prof. *Luis Velasco* (heuristics and metaheuristics), Universitat Politècnica de Catalunya (UPC), Facultat d'Informàtica de Barcelona. Many modelling exercises come from H. P. Williams, _Model Building in Mathematical Programming_ (Wiley); the theory follows D. G. Luenberger and Y. Ye, _Linear and Nonlinear Programming_ (Springer), and the metaheuristics F. Glover and G. A. Kochenberger (eds.), _Handbook of Metaheuristics_ (Kluwer), and the work of M. G. C. Resende and C. C. Ribeiro on GRASP and BRKGA.
 
 The numbers in the text and the answers were verified with exact rational arithmetic (simplex, branch & bound, separable programming), with IBM CPLEX (every LP and MILP of the sheets and labs, solved through its Python interface) and by brute force on random instances (every exam model and every greedy algorithm). The scripts are in the `verify/` folder of the sources.
+
+This edition: November 2026.

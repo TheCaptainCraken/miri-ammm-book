@@ -16,7 +16,7 @@
 
 Draw the feasible region of the pretest LP (left of Figure 3.1). It is a polygon with five corners. Slide a level line $x + 2y = "const"$ outward: the last point it touches is a corner, $(1, 2)$. That picture is the whole idea of this chapter and the next: *optimal solutions of an LP can be found at corners*, and the simplex method is an algebraic way of walking from corner to corner. To walk algebraically we first need to say "corner" algebraically. That word is *basis*.
 
-#fig("/figures/lp-region.svg", caption: [Left: the level lines of $x + 2y$ slide outward until the last feasible point, a corner. Right: every corner is the basic solution of a basis (the basic variables are listed).], wide: true)
+#figure(image("/figures/lp-region.svg"), caption: [Left: the level lines of $x + 2y$ slide outward until the last feasible point, a corner. Right: every corner is the basic solution of a basis (the basic variables are listed).])
 
 == One standard form for every LP
 
@@ -34,7 +34,8 @@ The slack measures the unused amount of a resource: in the factory, the drilling
 
 #example[Canonical form][
   $max x + 2y$ s.t. $x + y <= 3$, $x <= 2$, $y <= 2$, $x, y >= 0$ becomes
-  $ min -x - 2y quad "s.t." quad x + y + s_1 = 3, quad x + s_2 = 2, quad y + s_3 = 2, quad x, y, s_1, s_2, s_3 >= 0. $
+  $ min -x - 2y quad "s.t." quad & x + y + s_1 = 3, quad x + s_2 = 2, quad y + s_3 = 2, \
+  & x, y, s_1, s_2, s_3 >= 0. $
   Here $n = 5$, $m = 3$; the slack columns form the identity matrix, so the rank is 3 automatically.
 ]
 
@@ -63,7 +64,7 @@ $ x_R = 0, quad x_B = B^(-1) b. $
 
 #definition[Basic feasible solution][The basic solution of a basis $B$ is feasible if $x_B = B^(-1) b >= 0$; then $B$ is a *feasible basis*. If some basic variable equals 0, the basis is *degenerate*.]
 
-#think[Why is "set the non-basic variables to zero" the algebraic version of "stand on a corner"?]Geometrically, a non-basic variable at 0 means "this inequality is tight" (a slack at 0) or "this variable sits on its bound" ($x = 0$). With $n - m$ of them at zero we are at the intersection of $n - m$ boundary lines — a corner, if it is feasible. Figure 3.1 (right) labels each corner of the polygon with its basis.
+#question(label: [Think first])[Why is "set the non-basic variables to zero" the algebraic version of "stand on a corner"?]Geometrically, a non-basic variable at 0 means "this inequality is tight" (a slack at 0) or "this variable sits on its bound" ($x = 0$). With $n - m$ of them at zero we are at the intersection of $n - m$ boundary lines — a corner, if it is feasible. Figure 3.1 (right) labels each corner of the polygon with its basis.
 
 #example[Three bases of the same LP][
   System: $x + y + s_1 = 3$, $x + s_2 = 2$, $y + s_3 = 2$.
@@ -109,7 +110,7 @@ Change the first constraint to $x + y + s_1 = 4$. The corner $(2, 2)$ is now fea
   + How many bases can an LP with $n$ variables and $m$ equations have at most?
 ]
 
-#summary[
+#tip(label: [The chapter in five lines])[
   + Canonical form: $min c^T x$, $A x = b$, $x >= 0$; reach it with max→min, ×(−1), $x = x^+ - x^-$ and slacks.
   + A basis is an invertible choice of $m$ columns; $x_B = B^(-1) b - B^(-1) R x_R$ is its tableau.
   + Basic solution: non-basic variables at 0, $x_B = B^(-1) b$; feasible if $>= 0$, degenerate if some basic value is 0.
@@ -121,7 +122,7 @@ Change the first constraint to $x + y + s_1 = 4$. The corner $(2, 2)$ is now fea
 
 #chapter-time()
 
-#tier("warm")
+=== Warm-up
 
 #exercise("ch3-w1", time: 5, tier: "warm")[Bring to canonical form: $max 3x - y$ s.t. $x + 2y <= 4$, $x - y >= -1$, $x >= 0$, $y$ free.]
 
@@ -129,7 +130,7 @@ Change the first constraint to $x + y + s_1 = 4$. The corner $(2, 2)$ is now fea
 
 #exercise("ch3-w3", time: 4, tier: "warm")[True or false? (a) Every solution of $A x = b$ is feasible. (b) A basic solution has at most $m$ non-zero variables. (c) An unbounded LP has an unbounded feasible region. (d) An unbounded feasible region implies an unbounded LP.]
 
-#tier("practice")
+=== Practice
 
 #exercise("ch3-p1", time: 10)[For the system $x + y + s_1 = 3$, $x + s_2 = 2$, $y + s_3 = 2$, compute the basic solutions of $(x, y, s_2)$, $(x, y, s_3)$, $(x, s_1, s_3)$, $(x, s_2, s_3)$ and $(y, s_2, s_3)$. Classify each as feasible or infeasible and match the feasible ones with the corners in Figure 3.1.]
 
@@ -137,11 +138,13 @@ Change the first constraint to $x + y + s_1 = 4$. The corner $(2, 2)$ is now fea
 
 #exercise("ch3-p3", time: 6)[Replace the first equation of the polygon LP by $x + y + s_1 = 4$. List every basis whose basic solution is the point $x = y = 2$, and say why each of them is degenerate.]
 
-#tier("exam")
+=== Exam level
 
 #exercise("ch3-e1", source: "new, exam style", time: 8, tier: "exam")[Consider $min x_1 - x_3$ s.t. $2 x_0 + x_1 - x_2 = 2$, $x_0 - x_2 + x_3 = 2$, $x >= 0$. (a) Show that $(x_0, x_3)$ is a feasible basis and give the basic solution and the objective value. (b) Is $(x_1, x_2)$ a feasible basis?]
 
-#tier("review", note: [from Chapters 1–2])
+=== Spaced review
+
+_From Chapters 1–2._
 
 #exercise("ch3-r1", source: "review of Ch. 1", time: 3, tier: "review")["The average quality of the blend must be at least 0.9", with $x_i$ tons of ore of quality $q_i$. Write it linearly.]
 

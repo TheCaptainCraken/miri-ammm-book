@@ -13,7 +13,11 @@
   ($x_(t c)$, [share of task $t$ on computer $c$ (Lab 1) — or 1 if $t$ runs on $c$ (Lab 2)]),
 )
 
-#pretest("ch2")[In OPL, what is wrong with the line `dvar float x[1..5]; maximize sum(i in 1..5) x[i]*x[i];`? And with `subject to { x[1] < 3; }`?]
+#pretest("ch2")[In OPL, what is wrong with this line?
+```opl
+dvar float x[1..5]; maximize sum(i in 1..5) x[i]*x[i];
+```
+And with `subject to { x[1] < 3; }`?]
 
 The exam is on paper, so why learn a tool? Because question 2 of every past exam _starts_ with a fragment of OPL that you must read, the labs and the project are written in OPL, and seeing a model run is the fastest way to find out that it is wrong. This chapter teaches enough OPL to do everything in the slides and in Labs 1–3. No installation is assumed in the exercises: you can do them on paper and compare with the answers, which show the code and the results CPLEX returned.
 
@@ -54,7 +58,7 @@ subject to {
 
 Read it against the mathematics: `range` is an index set, `dvar float+` declares non-negative real variables (one per element of `Prods`), `maximize` gives the objective, and `forall (r in Resources)` writes one constraint per resource — exactly $sum_p a_(r p) x_p <= b_r$ for all $r in R$. Every statement ends with `;`.
 
-#think[What would change in the OPL code if PROD3 became a product that must be made in whole units?]The first version on the slides writes the three constraints separately and gives them *labels*:
+#question(label: [Think first])[What would change in the OPL code if PROD3 became a product that must be made in whole units?]The first version on the slides writes the three constraints separately and gives them *labels*:
 ```opl
 subject to {
   Grinding:
@@ -69,7 +73,7 @@ Labels appear in the solution browser with their slack and dual value, and they 
 
 === The syntax you will actually use
 
-#btable(columns: (auto, 1fr), header: ([OPL], [meaning]),
+#table(align: left, columns: (auto, 1fr), table.header([OPL], [meaning]),
   [`dvar float x;`], [free real variable ($x in RR$)],
   [`dvar float+ x;`], [$x >= 0$, real],
   [`dvar int+ n;`, `dvar int n in 0..10;`], [integer $>= 0$; integer with bounds],
@@ -82,7 +86,7 @@ Labels appear in the solution browser with their slack and dual value, and they 
   [`minimize`, `maximize`], [direction of optimization],
 )
 
-#revisit("ch2")[#side[Strict inequalities do not exist in LP: the set $x < 3$ has no maximum. With integers write `x <= 2` instead of `x < 3`.] `x[i]*x[i]` is a product of two decision variables: the objective is quadratic, not linear. Maximizing $sum x_i^2$ is a non-convex problem (Chapter 9); by default CPLEX only accepts quadratic objectives that are convex for a minimization, so the run stops with an error. (And with free, unbounded $x$ it would be unbounded anyway.) `x[1] < 3` is rejected because OPL has no strict inequalities in constraints on real variables — and an LP could not attain the supremum anyway.]
+#revisit("ch2")[#note[Strict inequalities do not exist in LP: the set $x < 3$ has no maximum. With integers write `x <= 2` instead of `x < 3`.] `x[i]*x[i]` is a product of two decision variables: the objective is quadratic, not linear. Maximizing $sum x_i^2$ is a non-convex problem (Chapter 9); by default CPLEX only accepts quadratic objectives that are convex for a minimization, so the run stops with an error. (And with free, unbounded $x$ it would be unbounded anyway.) `x[1] < 3` is rejected because OPL has no strict inequalities in constraints on real variables — and an LP could not attain the supremum anyway.]
 
 #stopbox("ch2-a")[
   + Write the OPL declaration of $y_(i j) in {0, 1}$ for $i in 1..n$, $j in 1..m$.
@@ -257,7 +261,7 @@ A method that always works:
   `c[i][j]` is 1 for exactly one rental plan, so the sum is the duration $H_i$ of the chosen plan. The constraints say $0 <= "tr"_k$ and $"tr"_k + h_k <= H_i$: *job $k$ starts no earlier than time 0 and ends no later than the end of the rental.*
 ]
 
-#summary[
+#tip(label: [The chapter in five lines])[
   + OPL mirrors the mathematics: `range` = index set, `dvar` = variable with its domain, `forall`/`sum` = $forall$/$sum$, `minimize`/`maximize` + `subject to`.
   + Keep the model in a `.mod` file and the numbers in a `.dat` file (`= ...;`).
   + `execute` blocks run before or after solving; `main` controls loading, parameters (`epgap`, `tilim`), solving and reporting.
@@ -269,7 +273,7 @@ A method that always works:
 
 #chapter-time()
 
-#tier("warm")
+=== Warm-up
 
 #exercise("ch2-w1", time: 5, tier: "warm")[Write in mathematical notation what this OPL fragment states:
 ```opl
@@ -293,7 +297,9 @@ subject to {
 }
 ```]
 
-#tier("exam", note: [the "(a)" part of three past exams])
+=== Exam level
+
+_The "(a)" part of three past exams._
 
 #exercise("jun24-q2a", source: "Final Jun 2024 · Q2(a)", time: 8, tier: "exam")[We prepare $n$ jobs to run concurrently. Job $k$ needs a block of $w_k$ Mb of contiguous memory, exclusively, and runs for $h_k$ seconds. A cloud provider offers $r$ rental durations $H_1 < dots < H_r$ (seconds) and $s$ memory capacities $W_1 < dots < W_s$ (Mb); renting for $H_i$ seconds a computer with $W_j$ Mb costs $p_(i j)$ €. We want the cheapest rental plan that can run all jobs. Data are positive integers; time starts at 0 and the lowest address is 0. Variables: $c_(i j)$ binary, "we rent for $H_i$ s a computer with $W_j$ Mb"; $"tr"_k$ integer, "time at which job $k$ starts"; $"lc"_k$ integer, "lowest address of the block of job $k$". Give an informal description of the meaning of constraints [A] and [B]:
 ```opl
@@ -324,7 +330,9 @@ forall (i in 1..n)
     x[i][j] + y[i][j] <= 1;
 ```]
 
-#tier("tool", note: [Labs 1–3; on paper or in the IDE])
+=== CPLEX / OPL
+
+_Labs 1–3; on paper or in the IDE._
 
 #exercise("lab1-ab", source: "Lab 1 · tasks (a), (b)", time: 6, tier: "tool")[Describe in plain language the objective and each constraint family of P1. Then explain why the variable $z$ equals the load of the most loaded computer at an optimal solution.]
 
@@ -343,7 +351,9 @@ forall (i in 1..n)
 #exercise("lab2-ef", source: "Lab 2 · tasks (e), (f)", time: 12, tier: "tool")[Write P2e, which may reject any tasks and minimizes the total rejected load. Compare P2a, P2d ($K = 1$) and P2e in number of variables and constraints.]
 
 #exercise("lab3-a", source: "Lab 3 · task (a)", time: 18, tier: "tool")[Lab 3 (P3): each task $t$ is a set of threads $H(t)$, thread $h$ requests $r_h$; computer $c$ has the cores $K(c)$, each of capacity $R_c$. Every thread goes to one core, all threads of a task to cores of the same computer, core capacities hold, and $z$ (to minimize) is the highest computer load $1 slash (|K(c)| R_c) sum_(h, k in K(c)) r_h x_(h k)$. The model is
-$ sum_(k in K) x_(h k) = 1 quad forall h, quad sum_(h in H(t)) sum_(k in K(c)) x_(h k) = |H(t)| x_(t c) quad forall t, c, quad sum_h r_h x_(h k) <= R_c quad forall c, k in K(c), $
+$ & sum_(k in K) x_(h k) = 1 quad forall h, \
+  & sum_(h in H(t)) sum_(k in K(c)) x_(h k) = |H(t)| x_(t c) quad forall t, c, \
+  & sum_h r_h x_(h k) <= R_c quad forall c, k in K(c), $
 plus the $z$ constraints. Write it in OPL with the lab's data format (`CK`, `TH` matrices; 4 tasks of 2 threads with requests 261.27, 560.89, 310.51, 105.8 each; 3 computers with 3 cores of 505.67, 503.68, 701.78) and solve it. Why is there no constraint "each task on exactly one computer"?]
 
 #exercise("lab3-cd", source: "Lab 3 · tasks (c), (d)", time: 12, tier: "tool")[Modify P3 to maximize the number of computers whose cores are all empty (P3a). What is the optimum on the lab data? How do the sizes of P3 and P3a compare?]

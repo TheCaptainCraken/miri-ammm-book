@@ -27,7 +27,7 @@ So at this basic solution ($x = 1$, $y = 2$) the objective is $-5$.
 
 #definition[Reduced cost][Once the objective is written in terms of the non-basic variables only, $z = z_0 + sum_(j "non-basic") d_j x_j$, the coefficient $d_j$ is the reduced cost of $x_j$. It is the change of the objective per unit increase of $x_j$ when the other non-basic variables stay at 0 and the basic ones adjust to keep $A x = b$.]
 
-In matrix form $d_j = c_j - c_B^T B^(-1) a_j$, but by hand the substitution is faster and harder to get wrong. Reduced costs of basic variables are 0 by definition. #side[$d_j$ is "reduced" because the raw cost $c_j$ is corrected by the costs of the basic variables that must move when $x_j$ moves.]
+In matrix form $d_j = c_j - c_B^T B^(-1) a_j$, but by hand the substitution is faster and harder to get wrong. Reduced costs of basic variables are 0 by definition. #note[$d_j$ is "reduced" because the raw cost $c_j$ is corrected by the costs of the basic variables that must move when $x_j$ moves.]
 
 == Optimality
 
@@ -52,7 +52,7 @@ Suppose $d_j < 0$. Increase $x_j$ from 0 to some value $t$, keeping the other no
 - if $alpha_(i j) >= 0$, the basic variable does not decrease: *no limit*;
 - if $alpha_(i j) < 0$, we need $beta_i + alpha_(i j) t >= 0$, i.e. $t <= beta_i slash (-alpha_(i j))$.
 
-The best value is the *smallest* of these limits — the *ratio test*. If no row limits $t$, the objective decreases forever: the LP is *unbounded*. Otherwise the row that gives the minimum is *tight*: its basic variable becomes 0 and leaves the basis, and $x_j$ enters. Rewriting the tableau for the new basis is called *pivoting*. #fig("/figures/simplex-path.svg", caption: [The simplex path for $min -x - 2y$: from $(0, 0)$ to $(0, 2)$ when $y$ enters, then to $(1, 2)$ when $x$ enters.], margin: true)
+The best value is the *smallest* of these limits — the *ratio test*. If no row limits $t$, the objective decreases forever: the LP is *unbounded*. Otherwise the row that gives the minimum is *tight*: its basic variable becomes 0 and leaves the basis, and $x_j$ enters. Rewriting the tableau for the new basis is called *pivoting*. #figure(image("/figures/simplex-path.svg", width: 60%), caption: [The simplex path for $min -x - 2y$: from $(0, 0)$ to $(0, 2)$ when $y$ enters, then to $(1, 2)$ when $x$ enters.])
 
 #example[The slides' run, step by step][
   *Start:* $s_1 = 3 - x - y$, $s_2 = 2 - x$, $s_3 = 2 - y$, $z = -x - 2y$. Both $x$ and $y$ have negative reduced costs. Choose $y$ ($d_y = -2$).
@@ -95,7 +95,7 @@ Here is a question in exactly the format of the finals, solved the way you shoul
   (Pivoting once more gives $x_2 = 3 - x_1$, $x_0 = 2 + x_1 + x_3$, $z = 4 + x_1 + 2 x_3$: optimal with value 4. The objective fell by $1 times 3 = 3$, as predicted.)
 ]
 
-#think[In step 5, why do we keep $x_3$ at 0 while $x_2$ grows?]The phrase "the best value it can be assigned to according to the ratio test" means exactly the minimum ratio of step 5. The phrase "satisfies the optimality conditions" means "has a non-negative reduced cost". The January variants ask instead "justify why the basic solution is optimal": answer with the reduced costs and the sentence "all reduced costs are $>= 0$, so the basic solution is optimal".
+#question(label: [Think first])[In step 5, why do we keep $x_3$ at 0 while $x_2$ grows?]The phrase "the best value it can be assigned to according to the ratio test" means exactly the minimum ratio of step 5. The phrase "satisfies the optimality conditions" means "has a non-negative reduced cost". The January variants ask instead "justify why the basic solution is optimal": answer with the reduced costs and the sentence "all reduced costs are $>= 0$, so the basic solution is optimal".
 
 #yourturn("ch4-yt1")[
   $min 2x_0 + 2x_1 + 2x_2 + x_3$ s.t. $-x_0 - x_2 + x_3 = -1$, $-x_0 - 2x_1 + 2x_2 - 2x_3 = -2$; basis $(x_2, x_1)$.
@@ -111,7 +111,7 @@ The simplex method needs a feasible basis to start. With constraints $<= b$, $b 
 
 The fix is to add an *artificial variable* $z_1 >= 0$ to that equation, $x + y - s_2 + z_1 = 1$, use $z_1$ in the basis ($z_1 = 1 - x - y + s_2$) and first solve
 $ min z_1 quad "s.t. the constraints with" z_1. $
-This *phase I* problem has an obvious feasible basis, so the simplex method applies to it. Its optimum is 0 exactly when the original problem is feasible: if $z_1 = 0$ the original constraint holds. Then $z_1$ is non-basic, we drop it, and the final basis of phase I is a feasible basis to start *phase II* (the real objective). #fig("/figures/phase1.svg", caption: [Phase I: the origin is not feasible for $x + y >= 1$; one pivot reaches the feasible vertex $(1, 0)$.], margin: true)
+This *phase I* problem has an obvious feasible basis, so the simplex method applies to it. Its optimum is 0 exactly when the original problem is feasible: if $z_1 = 0$ the original constraint holds. Then $z_1$ is non-basic, we drop it, and the final basis of phase I is a feasible basis to start *phase II* (the real objective). #figure(image("/figures/phase1.svg", width: 60%), caption: [Phase I: the origin is not feasible for $x + y >= 1$; one pivot reaches the feasible vertex $(1, 0)$.])
 
 #example[Phase I (slides 18–24)][
   $min z_1$ with $s_1 = 3 - x - y$, $z_1 = 1 - x - y + s_2$, $s_3 = 2 - x$, $s_4 = 2 - y$. The objective in non-basic variables is $1 - x - y + s_2$. Choose $x$: the limits are 3, 1 and 2, so $x = 1$ and $z_1$ leaves. New tableau: $x = 1 - z_1 - y + s_2$, $s_1 = 2 + z_1 - s_2$, $s_3 = 1 + z_1 + y - s_2$, $s_4 = 2 - y$, objective $z_1$: optimal with value 0. Drop $z_1$: the basis $(s_1, x, s_3, s_4)$ is feasible for the original problem. In phase II, $-x - 2y = -1 - y - s_2$: both $y$ and $s_2$ can enter. Continuing with the smallest index first ($y$, then $s_2$, then $x$ again) the objective goes $-1, -2, -4, -5$ and stops at $(x, y) = (1, 2)$ with value $-5$.
@@ -141,7 +141,7 @@ Interior-point methods solve LPs in polynomial time; the simplex method remains 
   + What is the maximum number of bases with $n$ variables and $m$ equations?
 ]
 
-#summary[
+#tip(label: [The chapter in five lines])[
   + Tableau: basic variables as functions of non-basic ones; constants give the basic solution, the constant of $z$ gives its value.
   + Reduced costs: substitute the tableau into the objective; $d_j$ = coefficient of non-basic $x_j$.
   + Minimization: all $d_j >= 0$ ⇒ optimal. A non-basic $x_j$ with $d_j < 0$ violates optimality.
@@ -153,7 +153,7 @@ Interior-point methods solve LPs in polynomial time; the simplex method remains 
 
 #chapter-time()
 
-#tier("warm")
+=== Warm-up
 
 #exercise("ch4-w1", time: 3, tier: "warm")[A tableau reads $x_1 = 4 - x_2 + 2x_4$, $x_3 = 1 + x_2 - x_4$, $z = 10 + 3 x_2 - x_4$. Give the basic solution, its objective value and the reduced costs. Is it optimal?]
 
@@ -161,7 +161,7 @@ Interior-point methods solve LPs in polynomial time; the simplex method remains 
 
 #exercise("ch4-w3", time: 5, tier: "warm")[Check the reduced cost $d_x = -1$ of the second iteration of Worked example 4.1 with the formula $d_j = c_j - c_B^T B^(-1) a_j$, for the basis $(s_1, s_2, y)$.]
 
-#tier("practice")
+=== Practice
 
 #exercise("ch4-p1", time: 12)[Solve $min -3 x_1 - 2 x_2$ s.t. $x_1 + x_2 + s_1 = 4$, $x_1 + 3 x_2 + s_2 = 6$, $x, s >= 0$ with the simplex method, starting from the slack basis and always choosing the most negative reduced cost.]
 
@@ -171,7 +171,9 @@ Interior-point methods solve LPs in polynomial time; the simplex method remains 
 
 #exercise("ch4-p4", time: 6)[Explain why the optimal value of a phase-I problem is 0 whenever the original LP is feasible, and why it cannot be negative.]
 
-#tier("exam", note: [all five past question 1s; 12–15 minutes each])
+=== Exam level
+
+_All five past question 1s; 12–15 minutes each._
 
 #exercise("jun24-q1", source: "Final Jun 2024 · Q1", time: 15, tier: "exam")[$min x_0 + x_1 - x_2 - x_3$ s.t. $-2 x_0 + x_1 - 2 x_3 = 1$, $2 x_0 - x_2 - x_3 = -1$, $x_i >= 0$. The variables $(x_1, x_3)$ form a feasible basis. (a) Give the values of the basic variables $x_1$ and $x_3$. (b) Give the objective value at the basic solution. (c) Give the reduced costs of $x_0$ and $x_2$. (d) Does $x_0$ satisfy the optimality conditions? If not, give the best value it can be assigned according to the ratio test ($+infinity$ if none). (e) The same for $x_2$.]
 
@@ -185,7 +187,9 @@ Interior-point methods solve LPs in polynomial time; the simplex method remains 
 
 #exercise("simplex-new-a", source: "new, exam style", time: 12, tier: "exam")[$min 2 x_0 + 2 x_1 + 2 x_2 + x_3$ s.t. $-x_0 - x_2 + x_3 = -1$, $-x_0 - 2 x_1 + 2 x_2 - 2 x_3 = -2$, $x_i >= 0$. Without looking at Your turn 4.1, take the basis $(x_0, x_1)$ and answer: (a) basic values; (b) objective value; (c) reduced costs of $x_2$ and $x_3$; (d)–(e) optimality of each, with the ratio test where needed.]
 
-#tier("review", note: [from Chapters 1–3])
+=== Spaced review
+
+_From Chapters 1–3._
 
 #exercise("ch4-r1", source: "review of Ch. 1", time: 4, tier: "review")[Write the LP constraints that make $z$ the largest of $|e_1|, |e_2|$ in a minimization of $z$.]
 

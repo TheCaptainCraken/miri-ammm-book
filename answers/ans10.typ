@@ -1,6 +1,4 @@
-#import "../template.typ": *
-
-== Chapter 10
+#import "../refs.typ": answer, exref, slidenote
 
 #answer("ch10-a")[(a) Given (sets and parameters), output, objective (direction), constraints. (b) Lab 1: $1238.47 slash 1711.13 = 0.7238$. Five tasks: $1583.17 slash 1711.13 = 0.9252$. (c) To regenerate exactly the same instances, so that experiments (and other people) can be repeated and methods compared on the same data.]
 

@@ -1,6 +1,4 @@
-#import "../template.typ": *
-
-== Chapter 11
+#import "../refs.typ": answer, exref, slidenote
 
 #answer("ch11-yt1")[Candidates: items not yet in the knapsack. $q(i) = v_i slash w_i$ (value per unit of weight), maximized; infeasible (value $-infinity$) if $w_i$ exceeds the residual capacity. Ratios 5, 7, 4.17, 4.8: order items 2, 1, 4, 3. Greedy takes item 2 (weight 1) and item 1 (weight 2); item 4 (weight 5) no longer fits in the remaining 4, nor item 3: value 17. The optimum, items 1 and 4, has value 34. The greedy filled the knapsack with small, efficient items and left no room for the big valuable one — myopia.]
 

@@ -19,17 +19,17 @@ Chapter 5 dealt with stories made only of yes/no decisions. Real stories mix the
 
 Let $x >= 0$ be a quantity with a known upper bound $U$ and $delta$ an indicator. Two constraints cover all the classic sentences.
 
-#btable(columns: (1fr, auto), header: ([sentence], [constraint]),
+#table(align: left, columns: (1fr, auto), table.header([sentence], [constraint]),
   [if $x > 0$ then $delta = 1$ ("$delta$ = 0 means $x$ is not used")], [$x <= U delta$],
   [if $delta = 1$ then $x >= L$ ("if used, at least $L$")], [$x >= L delta$],
   [$x$ is 0 or between $L$ and $U$ (semi-continuous)], [$L delta <= x <= U delta$],
 )
 
-#fig("/figures/bigm.svg", caption: [$x <= U delta$: with $delta = 0$ only $x = 0$ is allowed; with $delta = 1$ the constraint is harmless as long as $U$ really bounds $x$.], margin: true)Read $x <= U delta$ in both cases: $delta = 0$ forces $x = 0$; $delta = 1$ gives $x <= U$, which must already be true — that is why $U$ must be a *valid upper bound*. If you pick $U$ too small, you cut off good solutions; if you pick it huge, the model stays correct but the LP relaxation gets weak (Chapter 8), and branch & bound slows down. Take the smallest bound the story guarantees: the refining capacity, a market limit, total demand.
+#figure(image("/figures/bigm.svg", width: 60%), caption: [$x <= U delta$: with $delta = 0$ only $x = 0$ is allowed; with $delta = 1$ the constraint is harmless as long as $U$ really bounds $x$.])Read $x <= U delta$ in both cases: $delta = 0$ forces $x = 0$; $delta = 1$ gives $x <= U$, which must already be true — that is why $U$ must be a *valid upper bound*. If you pick $U$ too small, you cut off good solutions; if you pick it huge, the model stays correct but the LP relaxation gets weak (Chapter 8), and branch & bound slows down. Take the smallest bound the story guarantees: the refining capacity, a market limit, total demand.
 
 Once quantities have indicators, logic between activities is Chapter 5's logic on the $delta$'s: "at least three oils" is $sum_i delta_i >= 3$; "if VEG 1 is used then NON 3 is used" is $delta_1 <= delta_5$.
 
-#think[In "if $delta = 1$ then $x >= 20$", what goes wrong if you forget $x <= U delta$?]Without $x <= U delta$ nothing stops the solver from using an oil ($x > 0$) while claiming $delta = 0$, which escapes both the 20-ton minimum and the "three oils" count. The two constraints work as a pair: one defines what $delta = 0$ means, the other what $delta = 1$ means.
+#question(label: [Think first])[In "if $delta = 1$ then $x >= 20$", what goes wrong if you forget $x <= U delta$?]Without $x <= U delta$ nothing stops the solver from using an oil ($x > 0$) while claiming $delta = 0$, which escapes both the 20-ton minimum and the "three oils" count. The two constraints work as a pair: one defines what $delta = 0$ means, the other what $delta = 1$ means.
 
 #stopbox("ch6-a")[
   + Write "machine $j$ either does not run, or runs between 4 and 16 hours" with $h_j$ hours and indicator $delta_j$.
@@ -79,7 +79,7 @@ Disjunctions — "either constraint A or constraint B" — use one binary per al
 
 The January 2025 exam asks to maximize the *minimum compatibility* $C_(i k)$ among students in the same class. From Chapter 1, a maximin becomes "$max z$ with $z <= $ each term". But the terms are only those pairs that _end up_ in the same class, which the model decides. So switch each "$z <= C_(i k)$" on only when both students are in class $j$:
 $ z <= C_(i k) + U (2 - x_(i j) - x_(k j)) quad forall j, quad forall i < k. $
-When $x_(i j) = x_(k j) = 1$ the bracket is 0 and $z <= C_(i k)$. When at most one of them is in class $j$ the bracket is at least 1, and the constraint must become harmless: since $C_(i k) >= 0$ and we can add $z <= 1$ (compatibilities are at most 1), $U = 1$ suffices. That gives the official answer #side[Same thing in logic: $x_(i j) and x_(k j) -> z <= C_(i k)$. Say it this way in the exam too — the official solution does.]
+When $x_(i j) = x_(k j) = 1$ the bracket is 0 and $z <= C_(i k)$. When at most one of them is in class $j$ the bracket is at least 1, and the constraint must become harmless: since $C_(i k) >= 0$ and we can add $z <= 1$ (compatibilities are at most 1), $U = 1$ suffices. That gives the official answer #note[Same thing in logic: $x_(i j) and x_(k j) -> z <= C_(i k)$. Say it this way in the exam too — the official solution does.]
 $ z <= C_(i k) + 2 - x_(i j) - x_(k j), quad z <= 1. $
 
 #stopbox("ch6-b")[
@@ -107,7 +107,7 @@ Not every integer is binary. In the power-station exercise $n_(k t)$ is the _num
 - *Levels per unit:* with $x_(k t)$ the total output of type $k$, "each running unit produces between its minimum and its maximum" is $m_k n_(k t) <= x_(k t) <= M_k n_(k t)$ — the indicator constraint, multiplied by a count.
 - *Start-ups:* the number of units started at the beginning of period $t$ is at least the increase, $s_(k t) >= n_(k t) - n_(k, t-1)$, $s_(k t) >= 0$ integer. The start-up cost $sum s_(k t) dot "cost"$ is minimized, so $s_(k t)$ equals the increase when positive and 0 otherwise.
 
-#summary[
+#tip(label: [The chapter in five lines])[
   + Indicator pair: $x <= U delta$ (off means zero) and $x >= L delta$ (on means at least $L$), with $U$ a small valid bound.
   + Fixed cost: $f delta + c x$ with $x <= U delta$; closing savings: $-s(1 - delta)$.
   + Conditional constraint: $a^T x <= b + M(1 - delta)$ with $M >= max a^T x - b$.
@@ -119,19 +119,19 @@ Not every integer is binary. In the power-station exercise $n_(k t)$ is the _num
 
 #chapter-time()
 
-#tier("warm")
+=== Warm-up
 
 #exercise("ch6-w1", time: 4, tier: "warm")[$x in [0, 50]$ tons. Write: (a) if $x > 0$ then $delta = 1$; (b) if $delta = 1$ then $x >= 5$; (c) $x = 0$ or $10 <= x <= 50$.]
 
 #exercise("ch6-w2", time: 5, tier: "warm")[With $0 <= x, y <= 10$ and a binary $delta$, write "if $delta = 0$ then $x + y <= 6$" with the smallest valid big-M.]
 
-#tier("practice")
+=== Practice
 
 #exercise("ilp-sheet-1", source: "ILP sheet · Ex 1", time: 20)[Take the food-manufacture LP of Chapter 1 (five oils, refining limits 200 t vegetable and 250 t non-vegetable, hardness between 3 and 6, costs 110, 120, 130, 110, 115 €/t, price 150 €/t) and add: (i) if an oil is used, at least 20 tons of it must be used; (ii) the food must contain at least three oils; (iii) if VEG 1 or VEG 2 is used, NON 3 must be used. Formulate as a MIP.]
 
 #exercise("ilp-sheet-8", source: "ILP sheet · Ex 8", time: 25)[Factories at Liverpool (150 000 t/month) and Brighton (200 000 t) supply depots at Newcastle (throughput 70 000 t), Birmingham (50 000), London (100 000) and Exeter (40 000), and six customers C1–C6 (requirements 50, 10, 40, 35, 60, 20 thousand tons), either directly or through a depot. Costs (£/t; — = impossible):
 
-#btable(columns: 7, align: center, header: ([to \\ from], [Liverpool], [Brighton], [Newcastle], [Birmingham], [London], [Exeter]),
+#table(columns: (auto,) + (1fr,) * 6, align: center, table.header([to \\ from], [Liverpool], [Brighton], [Newcastle], [Birmingham], [London], [Exeter]),
   [Newcastle], [0.5], [—], [], [], [], [],
   [Birmingham], [0.5], [0.3], [], [], [], [],
   [London], [1.0], [0.5], [], [], [], [],
@@ -149,16 +149,18 @@ Not every integer is binary. In the power-station exercise $n_(k t)$ is the _num
 
 #exercise("ilp-sheet-12", source: "ILP sheet · Ex 12", time: 25)[Power stations must meet the daily load: 15 000 MW from 12 p.m. to 6 a.m., 30 000 MW 6–9 a.m., 25 000 MW 9 a.m.–3 p.m., 40 000 MW 3–6 p.m., 27 000 MW 6–12 p.m. (the demand holds for the whole period). There are 12 generators of type 1, 10 of type 2 and 5 of type 3:
 
-#btable(columns: 6, align: center, header: ([type], [min MW], [max MW], [€/h at min], [€/h per MW above min], [start-up €]),
+#table(columns: (auto,) + (1fr,) * 5, align: center, table.header([type], [min MW], [max MW], [€/h at min], [€/h per MW above min], [start-up €]),
   [1], [850], [2000], [1000], [2], [2000], [2], [1250], [1750], [2600], [1.3], [1000], [3], [1500], [4000], [3000], [3], [500])
 
 The generators working must be able to meet a load increase of up to 15 % within their limits. Which generators should work in which periods to minimize the total cost? Construct a MIP. #slidenote(deck: "ILP sheet", where: "Ex 12", says: [“the demands are for the whole indicated period, not per hour”.], correct: [The demands are power levels (MW) that must be met at every moment of the period; hourly costs are multiplied by the period length.], why: [MW measure power, not energy. Also unstated: whether the day repeats (start-ups at 12 p.m. counted against the evening) — Williams assumes it does.], kind: "sheet")]
 
-#tier("exam")
+=== Exam level
 
 #exercise("jan25-q2bd", source: "Final Jan 2025 · Q2(b–d)", time: 25, tier: "exam")[The class-assignment problem of #exref("jan25-q2a") ($n$ students, $m$ classes of size between $l$ and $u$, good students $G$, bad students $B$, compatibilities $C_(i k) in [0, 1]$, binary $x_(i j)$). (b) Give linear constraints that express that the number of good students in each class is at least double the number of bad students. (c) Express the objective function as a linear function and the direction of optimization; if more variables or constraints are needed, give their meaning and formal description. (d) Are other linear constraints needed for a correct ILP model? If so, give their meaning and formal description (and any extra variables).]
 
-#tier("review", note: [from Chapters 1–5])
+=== Spaced review
+
+_From Chapters 1–5._
 
 #exercise("ch6-r1", source: "review of Ch. 5", time: 3, tier: "review")[Write "if $a$ and $b$ then not $c$" for binaries $a, b, c$.]
 

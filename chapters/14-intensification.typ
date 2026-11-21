@@ -19,7 +19,7 @@ GRASP has no memory: iteration 500 knows nothing of iterations 1 to 499. The ide
 
 *Intensification.* Portions of the search space that look promising deserve a more thorough search, to make sure their best solutions are found. From time to time the normal search is paused for an intensification phase, guided by an *intermediate-term memory* — for instance, how many consecutive iterations each solution component (a task on a computer, a user on an access point) has been present in good solutions. Components that keep appearing can be fixed while the rest is searched more finely. Intensification is not always needed: often the normal search is enough.
 
-*Diversification.* Local-search methods tend to stay "local": they spend most of their time in a small region. Diversification forces the search into unexplored areas using *long-term memory* — the total number of iterations each component has been present in the current solution or involved in moves. Rarely used components can be forced into the current solution before restarting, or frequency can be added as a penalty to the cost so that overused components become less attractive. #think[GRASP's $alpha$ and local search: which one intensifies, which one diversifies?]
+*Diversification.* Local-search methods tend to stay "local": they spend most of their time in a small region. Diversification forces the search into unexplored areas using *long-term memory* — the total number of iterations each component has been present in the current solution or involved in moves. Rarely used components can be forced into the current solution before restarting, or frequency can be added as a penalty to the cost so that overused components become less attractive. #question(label: [Think first])[GRASP's $alpha$ and local search: which one intensifies, which one diversifies?]
 
 == Distances between solutions
 
@@ -42,7 +42,7 @@ while x != b:
 return x*
 ```
 
-Most intermediate solutions of a path between two good solutions are infeasible or poor, but some are better than both ends: good solutions share structure, and mixing them combines their good parts. Relinking can go forward ($a -> b$), backward ($b -> a$), or both; the slides' plots show that the two directions explore different solutions. #fig("/figures/path-relinking.svg", caption: [The slides' path between two network plans of cost 460: the three intermediate plans cost 420.], margin: true)
+Most intermediate solutions of a path between two good solutions are infeasible or poor, but some are better than both ends: good solutions share structure, and mixing them combines their good parts. Relinking can go forward ($a -> b$), backward ($b -> a$), or both; the slides' plots show that the two directions explore different solutions. #figure(image("/figures/path-relinking.svg", width: 60%), caption: [The slides' path between two network plans of cost 460: the three intermediate plans cost 420.])
 
 #example[Path relinking in network planning][
   Users 1–10 (capacity demands 2, 3, 4, 1, 2, 2, 1, 2, 3, 4), the instance of Chapter 11. Assignments (access point of each user):
@@ -100,7 +100,7 @@ return best
   + In GRASP + PR, which part intensifies and which diversifies?
 ]
 
-#summary[
+#tip(label: [The chapter in five lines])[
   + Intensification searches good regions more thoroughly (intermediate-term memory); diversification sends the search to unexplored regions (long-term memory, frequency penalties).
   + Distance between solutions: $|S plus.o S'|$, the symmetric difference.
   + Path relinking walks from an initiating to a guiding solution, adding the best missing element each step, and returns the best solution on the path.
@@ -112,23 +112,27 @@ return best
 
 #chapter-time()
 
-#tier("warm")
+=== Warm-up
 
 #exercise("ch14-w1", time: 3, tier: "warm")[Compute $|S plus.o S'|$ for the task assignments $(c_1, c_3, c_2, c_1)$ and $(c_2, c_3, c_1, c_1)$, seen as sets of pairs (task, computer).]
 
 #exercise("ch14-w2", time: 3, tier: "warm")[Give one intensification and one diversification mechanism based on the frequency with which "task $t$ on computer $c$" appears in solutions.]
 
-#tier("practice")
+=== Practice
 
 #exercise("ch14-p1", time: 12)[In the network-planning path relinking, compute the cost of the four possible first steps from $a$ (moving user 5 to $a_1$, user 6 to $a_3$, user 7 to $a_3$ or user 8 to $a_1$). Use the router models R1 (100 €, capacity 6, reach 2), R2 (140 €, 8, 3), R3 (180 €, 10, 4) and the distances of the instance. Which step does PR take?]
 
 #exercise("ch14-p2", time: 8)[Why does the elite-set rule require $d(S, "ES") >= d("ES")$ only when $S$ is not better than the best? What could go wrong if every solution better than the worst entered?]
 
-#tier("exam", note: [never asked so far; exam-style])
+=== Exam level
+
+_Never asked so far; exam-style._
 
 #exercise("pr-new-exam", source: "new, exam style", time: 15, tier: "exam")[For the task-assignment problem P2 (solutions = computer of each task): (a) define the distance between two solutions; (b) write the path-relinking procedure from $S_a$ to $S_b$, including what to do when an intermediate solution violates a capacity; (c) explain how you would combine it with your GRASP.]
 
-#tier("review", note: [from Chapters 7, 12 and 13])
+=== Spaced review
+
+_From Chapters 7, 12 and 13._
 
 #exercise("ch14-r1", source: "review of Ch. 13", time: 3, tier: "review")[Maximization, $q = (5, 9, 9, 1)$, $alpha = 0.5$. RCL?]
 

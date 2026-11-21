@@ -18,7 +18,7 @@ Chapter 5 promised that integer variables are expensive. Here is why, and what s
 
 == Relaxations and why rounding fails
 
-#fig("/figures/bb-region.svg", caption: [The LP optimum $(4, 4.5)$ is far from the integer optimum $(1, 2)$: no rounding of it is even feasible. Two cuts are drawn (§8.4).], margin: true)A mixed integer linear program (MILP) is an LP plus *integrality constraints* $x_i in ZZ$ for $i in I$. Dropping them gives its *LP relaxation*. Because the relaxation has more solutions, its optimum is at least as good: for a maximization, $"opt"(P) <= "opt"("LP"(P))$. The relaxation is a *bound*.
+#figure(image("/figures/bb-region.svg", width: 60%), caption: [The LP optimum $(4, 4.5)$ is far from the integer optimum $(1, 2)$: no rounding of it is even feasible. Two cuts are drawn (§8.4).])A mixed integer linear program (MILP) is an LP plus *integrality constraints* $x_i in ZZ$ for $i in I$. Dropping them gives its *LP relaxation*. Because the relaxation has more solutions, its optimum is at least as good: for a maximization, $"opt"(P) <= "opt"("LP"(P))$. The relaxation is a *bound*.
 
 #revisit("ch8")[Look at the figure above. The feasible region is a thin sliver between two almost parallel lines, and the only integer points inside are $(0, 1)$ and $(1, 2)$. The relaxation's optimum $(4, 4.5)$ rounds to $(4, 4)$ or $(4, 5)$, both infeasible, and the true optimum $(1, 2)$ with value 3 is nowhere near. Rounding is not an algorithm. The integer optimum is $(1, 2)$ with value 3 — far from $(4, 4.5)$, with value 8.5. In thin regions, integer optima can be anywhere along the sliver.]
 
@@ -53,7 +53,7 @@ while S is not empty:
 return Z
 ```
 
-#fig("/figures/bb-tree.svg", caption: [The tree of the slides' example, branching on the fractional variable each time. Grey nodes are infeasible. Each child's value is no better than its parent's.], width: 95%)
+#figure(image("/figures/bb-tree.svg", width: 95%), caption: [The tree of the slides' example, branching on the fractional variable each time. Grey nodes are infeasible. Each child's value is no better than its parent's.])
 
 #example[The slides' example, node by node][
   $max x + y$, $-2x + 2y >= 1$, $-8x + 10y <= 13$, $x, y >= 0$ integer. Root: $(4, 4.5)$, value 8.5. Branch on $y$: $y >= 5$ is infeasible; $y <= 4$ gives $(3.5, 4)$, 7.5. Branch on $x$: $x >= 4$ infeasible; $x <= 3$ gives $(3, 3.7)$, 6.7. Then $y >= 4$ infeasible, $y <= 3$: $(2.5, 3)$, 5.5; $x >= 3$ infeasible, $x <= 2$: $(2, 2.9)$, 4.9; $y >= 3$ infeasible, $y <= 2$: $(1.5, 2)$, 3.5; $x >= 2$ infeasible, $x <= 1$: $(1, 2)$, value 3, integer. No pending problems remain: the optimum is $(1, 2)$ with value 3. The tree walks down the sliver one unit at a time, which is why the sliver is a bad case.
@@ -115,7 +115,7 @@ It holds for every integer solution and is violated by the current one (there al
   - Cut in slacks: #blank(w: 10em). Substituting $s_1 = 24 - 6x - 4y$, $s_2 = 6 - x - 2y$: #blank(w: 8em).
 ]
 
-#summary[
+#tip(label: [The chapter in five lines])[
   + The LP relaxation bounds the MILP; rounding its solution can be infeasible or far from optimal.
   + Branch on a fractional $x_j = beta_j$: $x_j <= floor(beta_j)$ or $x_j >= ceil(beta_j)$.
   + Prune when the relaxation is infeasible, integral, or not better than the incumbent.
@@ -127,13 +127,13 @@ It holds for every integer solution and is violated by the current one (there al
 
 #chapter-time()
 
-#tier("warm")
+=== Warm-up
 
 #exercise("ch8-w1", time: 3, tier: "warm")[A relaxation has optimum $x = (2, 0, 5 slash 2, 1)$ for a pure integer problem. Do we need to branch? On which variable, and with which subproblems?]
 
 #exercise("ch8-w2", time: 3, tier: "warm")[Minimizing, the incumbent costs 40. Pending nodes have relaxation values 37, 40 and 45. Which can be pruned?]
 
-#tier("practice")
+=== Practice
 
 #exercise("bb-new-tree", source: "new", time: 20)[Solve $max 5x + 4y$ s.t. $6x + 4y <= 24$, $x + 2y <= 6$, $x, y >= 0$ integer by branch & bound, solving each relaxation graphically or by checking its corners. Explore the child "$>=$" first and prune by bound when you can. Draw the tree.]
 
@@ -141,7 +141,9 @@ It holds for every integer solution and is violated by the current one (there al
 
 #exercise("ch8-p3", time: 6)[Explain why branch & bound can run forever on $min 0$ s.t. $1 <= 3x - 3y <= 2$, $x, y >= 0$ integer, and how adding bounds $x, y <= 10$ fixes it.]
 
-#tier("exam", note: [Q1(d) of the January exams and two look-alikes])
+=== Exam level
+
+_Q1(d) of the January exams and two look-alikes._
 
 #exercise("jan25-q1d", source: "Final Jan 2025 · Q1(d)", time: 5, tier: "exam")[For the LP of #exref("jan25-q1abc"), assume now all variables are integer and we apply branch & bound. Do we need to branch? If so, indicate all variables that can be branched on and the subproblems obtained in each case.]
 
@@ -151,7 +153,9 @@ It holds for every integer solution and is violated by the current one (there al
 
 #exercise("bb-new-j3", source: "new, exam style", time: 12, tier: "exam")[$min x_1 - 2 x_2 - x_3$ s.t. $x_0 - x_1 - 2 x_2 - 2 x_3 = -2$, $2 x_0 - x_1 - 2 x_2 + 2 x_3 = 1$, $x >= 0$; basis $(x_0, x_2)$. Answer (a)–(c) of the previous exercise.]
 
-#tier("review", note: [from Chapters 5–7])
+=== Spaced review
+
+_From Chapters 5–7._
 
 #exercise("ch8-r1", source: "review of Ch. 7", time: 4, tier: "review")[Write the non-overlap constraints for tasks 1 (duration 3) and 2 (duration 2), horizon 20.]
 

@@ -1,6 +1,4 @@
-#import "../template.typ": *
-
-== Chapter 6
+#import "../refs.typ": answer, exref, slidenote
 
 #answer("ch6-yt1")[Variables $delta_k in {0,1}$ (line $k$ runs) and $q_k >= 0$ (hectolitres on line $k$). Objective $max sum_k (p_k q_k - f_k delta_k)$. Limits $L_k delta_k <= q_k <= U_k delta_k$. Demand $sum_k q_k <= D$. Line 3 needs line 1: $delta_3 <= delta_1$.]
 

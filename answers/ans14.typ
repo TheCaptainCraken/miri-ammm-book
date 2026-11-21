@@ -1,6 +1,4 @@
-#import "../template.typ": *
-
-== Chapter 14
+#import "../refs.typ": answer, exref, slidenote
 
 #answer("ch14-yt1")[$|A plus.o B| = |{2, 3, 4, 5}| = 4$, $|A plus.o C| = |{1, 3, 4, 6}| = 4$, $|B plus.o C| = |{1, 2, 5, 6}| = 4$: $d("ES") = 4$. $S = {1, 2, 6}$: distances 2, 4, 2, so $d(S, "ES") = 2$; cost 11 is not below the best (10), and although $11 < 15$ the solution is too close ($2 < 4$): it does not enter. $S = {3, 5, 6}$: distances 4, 4, 4, $d(S, "ES") = 4 >= 4$ and $14 < 15$: it enters. Members with cost $>= 14$: only $C$, so $C$ leaves.]
 

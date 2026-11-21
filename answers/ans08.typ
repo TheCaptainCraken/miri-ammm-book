@@ -1,6 +1,4 @@
-#import "../template.typ": *
-
-== Chapter 8
+#import "../refs.typ": answer, exref, slidenote
 
 #answer("ch8-yt1")[$y - frac(1,8) s_1 + frac(3,4) s_2 = 3 slash 2$. Fractional parts: $7 slash 8$, $3 slash 4$, $1 slash 2$. Cut: $frac(7,8) s_1 + frac(3,4) s_2 >= frac(1,2)$. Substituting: $frac(7,8)(24 - 6x - 4y) + frac(3,4)(6 - x - 2y) >= frac(1,2)$, i.e. $25.5 - 6x - 5y >= 0.5$: *$6 x + 5 y <= 25$*. It cuts off $(3, 1.5)$ ($18 + 7.5 = 25.5$) and every integer point of the region satisfies it. After adding it, the relaxation's optimum moves to $(10 slash 3, 1)$ with value $62 slash 3$.]
 

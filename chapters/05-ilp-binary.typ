@@ -34,7 +34,7 @@ Most binary models have one of three skeletons.
 
 *Counting comparisons* — sums of binaries are counts, so "as many A as B" is $sum x = sum y$; "the good students at least double the bad ones in class $j$" is $sum_(i in G) x_(i j) >= 2 sum_(i in B) x_(i j)$.
 
-#think[A vote passes with a strict majority. You vote YES; $n$ neighbours vote too ($n$ even); $y_i = 1$ if neighbour $i$ votes YES. Which constraint on $sum_i y_i$ guarantees the vote passes?]For the vote: YES votes are $1 + sum_i y_i$ and NO votes are $n - sum_i y_i$. A strict majority needs $1 + sum y > n - sum y$, i.e. $2 sum y > n - 1$; since $sum y$ is an integer and $n$ is even, this is $sum_i y_i >= n slash 2$. Always derive such thresholds by writing YES and NO explicitly: off-by-one errors here are the most common way to lose easy points.
+#question(label: [Think first])[A vote passes with a strict majority. You vote YES; $n$ neighbours vote too ($n$ even); $y_i = 1$ if neighbour $i$ votes YES. Which constraint on $sum_i y_i$ guarantees the vote passes?]For the vote: YES votes are $1 + sum_i y_i$ and NO votes are $n - sum_i y_i$. A strict majority needs $1 + sum y > n - sum y$, i.e. $2 sum y > n - 1$; since $sum y$ is an integer and $n$ is even, this is $sum_i y_i >= n slash 2$. Always derive such thresholds by writing YES and NO explicitly: off-by-one errors here are the most common way to lose easy points.
 
 #stopbox("ch5-a")[
   + Write "each task runs on exactly one of the computers" and "each computer runs at most 3 tasks".
@@ -46,7 +46,7 @@ Most binary models have one of three skeletons.
 
 A binary is a proposition. The translation table below is all you need; derive any other case from it.
 
-#btable(columns: (auto, 1fr, auto), header: ([logic], [meaning], [linear form]),
+#table(align: left, columns: (auto, 1fr, auto), table.header([logic], [meaning], [linear form]),
   [$not x$], [not $x$], [$1 - x$],
   [$x or y$], [at least one], [$x + y >= 1$],
   [$not (x and y)$], [not both], [$x + y <= 1$],
@@ -74,7 +74,7 @@ Often the story's goal is about one kind of variable and its rules about another
 
 *Coverage.* In the January 2026 exam, $x_j = 1$ if you persuade neighbour $j$ and $M_(j i) = 1$ if $j$ can convince $i$. A new variable $y_i$ ("$i$ votes YES") must only be 1 if some selected neighbour influences $i$: $y_i <= sum_j M_(j i) x_j$.
 
-*Pairs.* When the story speaks of pairs — "any two crew members must have collaborated or trained together" — create one variable per unordered pair, $y_(i j)$ with $i < j$, and link it: if both $i$ and $j$ are chosen, they must be trained, $x_i + x_j - 1 <= y_(i j)$. Only create pair variables where they are needed (here, pairs that have _not_ collaborated). #side[Ask of every linking constraint: _which direction does the objective push?_ Only the direction it pushes against needs a constraint.]
+*Pairs.* When the story speaks of pairs — "any two crew members must have collaborated or trained together" — create one variable per unordered pair, $y_(i j)$ with $i < j$, and link it: if both $i$ and $j$ are chosen, they must be trained, $x_i + x_j - 1 <= y_(i j)$. Only create pair variables where they are needed (here, pairs that have _not_ collaborated). #note[Ask of every linking constraint: _which direction does the objective push?_ Only the direction it pushes against needs a constraint.]
 
 #example[Graph colouring as an ILP][
   Given $G = (V, E)$ with $n = |V|$, find the fewest colours so that adjacent vertices differ. At most $n$ colours are ever needed.
@@ -109,7 +109,7 @@ The exam asks for variables (when not given), each family of constraints with it
 
 Part (e)/(d) of the exams — "are there other constraints needed to get a correct model?" — is a test of step 5: it hides the most obvious requirement (each student in exactly one class; each man at most one date). Re-read the story looking for "each", "every", "only", "at most".
 
-#summary[
+#tip(label: [The chapter in five lines])[
   + Binary variables encode decisions; sums of binaries count.
   + Assignment: $sum_j x_(i j) = 1$ (or $<= 1$); capacity and size limits on $sum_i$.
   + Logic: write the condition as a clause, replace $not x$ by $1 - x$, require sum $>= 1$; $x -> y$ is $x <= y$, $x and y -> z$ is $x + y - 1 <= z$.
@@ -121,23 +121,36 @@ Part (e)/(d) of the exams — "are there other constraints needed to get a corre
 
 #chapter-time()
 
-#tier("warm")
+=== Warm-up
 
 #exercise("ch5-w1", time: 4, tier: "warm")[Binary $a, b, c$. Write linearly: (a) exactly one of them; (b) at most two of them; (c) $a$ if and only if $b$; (d) if $a$ then not $c$.]
 
 #exercise("ch5-w2", time: 4, tier: "warm")[A school has $m$ classes and binary $x_(i j)$ ("student $i$ in class $j$"). Write: student 7 and student 9 are not in the same class.]
 
-#tier("practice")
+=== Practice
 
 #exercise("ilp-sheet-2", source: "ILP sheet · Ex 2", time: 15)[Formulate as a MIP the problem of completing this Sudoku (each row, column and $3 times 3$ box must contain $1, dots, 9$ once):
 
-#text(font: mono, size: 0.85em)[5 3 . | . 7 . | . . . \ 6 . . | 1 9 5 | . . . \ . 9 8 | . . . | . 6 . \ 8 . . | . 6 . | . . 3 \ 4 . . | 8 . 3 | . . 1 \ 7 . . | . 2 . | . . 6 \ . 6 . | . . . | 2 8 . \ . . . | 4 1 9 | . . 5 \ . . . | . 8 . | . 7 9]]
+```
+5 3 . | . 7 . | . . .
+6 . . | 1 9 5 | . . .
+. 9 8 | . . . | . 6 .
+8 . . | . 6 . | . . 3
+4 . . | 8 . 3 | . . 1
+7 . . | . 2 . | . . 6
+. 6 . | . . . | 2 8 .
+. . . | 4 1 9 | . . 5
+. . . | . 8 . | . 7 9
+```
+]
 
 #exercise("ilp-sheet-5", source: "ILP sheet · Ex 5", time: 10)[Model graph colouring as a MIP, without looking at Worked example 5.1. Then add constraints that break the symmetry between colours, and explain why they do not change the optimal value.]
 
 #exercise("ilp-sheet-3", source: "ILP sheet · Ex 3", time: 20)[Twenty-seven cells form a $3 times 3 times 3$ cube. Three cells lie on the same line if they are on the same horizontal or vertical line or on the same diagonal; diagonals exist on each horizontal and vertical section and between opposite vertices of the cube (49 lines in all). Place 13 white and 14 black balls, one per cell, so as to minimize the number of lines whose three balls have the same colour. Formulate as a MIP.]
 
-#tier("exam", note: [three past question 2s; about 25 minutes each])
+=== Exam level
+
+_Three past question 2s; about 25 minutes each._
 
 #exercise("jun25-q2be", source: "Final Jun 2025 · Q2(b–e)", time: 22, tier: "exam")[The "First Dates" problem of #exref("jun25-q2a") ($n$ men, $m$ women, scores $f_(i j)$ and $s_(i j)$, binaries $x_(i j)$ "date, man first" and $y_(i j)$ "date, man second"). (b) Express the objective function as a linear function and give the direction. (c) Give linear constraints expressing that exactly as many men as women confess first. (d) Let $I$ and $J$ be the men and women who are past participants; at least one past participant (man or woman) must be chosen. Give a linear constraint. (e) Are other linear constraints needed for a correct ILP model? If so, give their meaning and formal description (and any extra variables).]
 
@@ -145,7 +158,9 @@ Part (e)/(d) of the exams — "are there other constraints needed to get a corre
 
 #exercise("jun26-q2", source: "Final Jun 2026 · Q2", time: 25, tier: "exam")[A new ISS crew is chosen from $N$ candidates ($1, dots, N$). The crew needs at least $K$ astronauts, and any two crew members must have collaborated before or have been trained together. $E$ is the list of pairs ${i, j}$ who worked together in an earlier mission. A training course for the pair $i, j$ costs $c_(i j)$ € and gives them the same congeniality. An astronaut can follow at most $M$ courses. Choose the crew minimizing costs. (a) Define the variables, their types and meaning. (b) Give the linear constraints, formally and with meaning. (c) Give the objective and the direction of optimization.]
 
-#tier("review", note: [from Chapters 1–4])
+=== Spaced review
+
+_From Chapters 1–4._
 
 #exercise("ch5-r1", source: "review of Ch. 4", time: 8, tier: "review")[$min x_0 + x_2$ s.t. $x_0 + x_1 - x_2 = 3$, $x_0 - x_1 + x_3 = 1$, $x >= 0$, basis $(x_0, x_1)$. Give the basic solution, objective value and reduced costs. Is it optimal? If not, do the ratio test.]
 

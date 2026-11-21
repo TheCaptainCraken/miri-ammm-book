@@ -16,8 +16,8 @@
 
 A factory makes five products. A unit of PROD1 brings 550 € of profit and needs 12 hours of grinding, 10 hours of drilling and 20 hours of assembly; the other products have their own numbers (table below). The factory has 3 grinding machines and 2 drills, works 6 days a week with two 8-hour shifts, and employs 8 assembly workers who each work one shift a day. How much of each product should it make in a week?
 
-#btable(columns: 6, align: (left, right, right, right, right, right),
-  header: ([], [PROD1], [PROD2], [PROD3], [PROD4], [PROD5]),
+#table(columns: (auto,) + (1fr,) * 5, align: (left, right, right, right, right, right),
+  table.header([], [PROD1], [PROD2], [PROD3], [PROD4], [PROD5]),
   [profit (€/unit)], [550], [600], [350], [400], [200],
   [grinding (h/unit)], [12], [20], [—], [25], [15],
   [drilling (h/unit)], [10], [8], [16], [—], [—],
@@ -37,7 +37,7 @@ Read the story four times, each time with one question in mind.
 + *What do we want?* The largest total profit. This becomes the *objective function*.
 + *What stops us?* Machine hours and worker hours. These become the *constraints*.
 
-#think[Before reading on, write the grinding capacity in hours per week. Where does every factor come from?]Each answer turns into a piece of mathematics.
+#question(label: [Think first])[Before reading on, write the grinding capacity in hours per week. Where does every factor come from?]Each answer turns into a piece of mathematics.
 
 *Variables.* $x_j$ = units of PROD$j$ made in the week, $j = 1, dots, 5$.
 
@@ -75,7 +75,7 @@ $ max sum_(p in P) c_p x_p quad "s.t." quad sum_(p in P) a_(r p) x_p <= b_r quad
 
 This one line describes every instance of the factory problem. The modelling language OPL (Chapter 2) is built around the same split: a `.mod` file with the model and a `.dat` file with the numbers. The same Margarita recipe works whichever tequila is on the shelf; the recipe is the model, the bottle is the data.
 
-#side[The slides index products with $p$ and resources implicitly. The book uses $j$ for "columns" (variables) and $i$ for "rows" (constraints) in general formulas, and meaningful letters ($p$, $t$, $c$, …) in applications.]Building a model is worth it even before solving it: writing the constraints forces you to understand the system (the slides call this _improving understanding_), and once written it can be analysed mathematically and computationally, which you usually cannot do with the real factory. Note also the two meanings of "programming": *mathematical programming* means planning, as in "TV programme"; it has nothing to do with writing code, although we use computers to solve the models.
+#note[The slides index products with $p$ and resources implicitly. The book uses $j$ for "columns" (variables) and $i$ for "rows" (constraints) in general formulas, and meaningful letters ($p$, $t$, $c$, …) in applications.]Building a model is worth it even before solving it: writing the constraints forces you to understand the system (the slides call this _improving understanding_), and once written it can be analysed mathematically and computationally, which you usually cannot do with the real factory. Note also the two meanings of "programming": *mathematical programming* means planning, as in "TV programme"; it has nothing to do with writing code, although we use computers to solve the models.
 
 #stopbox("ch1-b")[
   + What is the difference between a model and an instance?
@@ -86,8 +86,8 @@ This one line describes every instance of the factory problem. The modelling lan
 
 The second example of the slides is the pretest of this chapter. A food is made by refining five raw oils (two vegetable, three non-vegetable) and blending them; the data are below. At most 200 tons of vegetable oil and 250 tons of non-vegetable oil can be refined, there is no loss of weight, the product sells for 150 €/ton and its hardness (the weighted average of the oils' hardness) must lie between 3 and 6.
 
-#btable(columns: 6, align: (left, right, right, right, right, right),
-  header: ([], [VEG 1], [VEG 2], [NON 1], [NON 2], [NON 3]),
+#table(columns: (auto,) + (1fr,) * 5, align: (left, right, right, right, right, right),
+  table.header([], [VEG 1], [VEG 2], [NON 1], [NON 2], [NON 3]),
   [hardness], [8.8], [6.1], [2.0], [4.2], [5.0],
   [cost (€/ton)], [110], [120], [130], [110], [115],
 )
@@ -145,7 +145,7 @@ Exercise 5 of the LP sheet asks for the straight line $y = a x + b$ that best fi
 Introduce two non-negative variables per point, $e^+_k$ and $e^-_k$, and impose
 $ y_k - (a x_k + b) = e^+_k - e^-_k, quad e^+_k, e^-_k >= 0, quad "minimize" sum_k (e^+_k + e^-_k). $
 
-#think[Why can the solver not "cheat" by making both $e^+_k$ and $e^-_k$ large?]Any deviation $d$ can be written as $e^+ - e^-$ in many ways ($3 = 3 - 0 = 5 - 2$), but $e^+ + e^-$ is smallest exactly when one of them is zero, and then $e^+ + e^- = |d|$. Because we minimize, the solver picks that split by itself. This trick only works when the absolute value is being _minimized_ (or appears with a positive coefficient in a minimization); maximizing $|d|$ is not an LP.
+#question(label: [Think first])[Why can the solver not "cheat" by making both $e^+_k$ and $e^-_k$ large?]Any deviation $d$ can be written as $e^+ - e^-$ in many ways ($3 = 3 - 0 = 5 - 2$), but $e^+ + e^-$ is smallest exactly when one of them is zero, and then $e^+ + e^- = |d|$. Because we minimize, the solver picks that split by itself. This trick only works when the absolute value is being _minimized_ (or appears with a positive coefficient in a minimization); maximizing $|d|$ is not an LP.
 
 Also note that $a$ and $b$ may be negative. LP variables are non-negative by default, so declare them *free* (in OPL, `dvar float a;` instead of `float+`). Chapter 3 shows the classical trick $a = a^+ - a^-$ that turns a free variable into two non-negative ones.
 
@@ -156,7 +156,9 @@ $ min z quad "s.t." quad y_k - a x_k - b <= z, quad -(y_k - a x_k - b) <= z quad
 At the optimum $z$ cannot stay above all deviations with room to spare, because lowering it would improve the objective; so $z$ equals the largest one.
 
 Lab 1 uses exactly this device. Tasks $t in T$ request $r_t$ units of processing and computers $c in C$ have capacity $R_c$. With $x_(t c) in [0, 1]$ the fraction of task $t$ served by computer $c$, the load of $c$ is $(1 slash R_c) sum_t r_t x_(t c)$, and we want to minimize the load of the busiest computer: #slidenote(deck: "Lab 1 and Greedy examples", where: "notation", says: [$r_t$ for the request of task $t$ and $r_c$ for the capacity of computer $c$ — one letter, told apart only by the name of the index.], correct: [The book writes $r_t$ for requests and $R_c$ for capacities.], why: [With $r_1$ you cannot tell whether task 1 or computer 1 is meant.], kind: "lab")
-$ min z quad "s.t." quad sum_c x_(t c) = 1 quad forall t, quad sum_t r_t x_(t c) <= R_c quad forall c, quad z >= 1/R_c sum_t r_t x_(t c) quad forall c. $
+$ min z quad "s.t." quad & sum_c x_(t c) = 1 quad forall t, \
+  & sum_t r_t x_(t c) <= R_c quad forall c, \
+  & z >= 1/R_c sum_t r_t x_(t c) quad forall c. $
 
 #example[Why $z$ equals the maximum load (Lab 1, task b)][
   The constraints say $z >= "load"_c$ for every $c$, so $z >= max_c "load"_c$. If at an optimal solution $z$ were strictly larger than every load, we could decrease $z$ a little and stay feasible with a better objective — a contradiction. So $z = max_c "load"_c$ at every optimal solution. The trick is valid because we _minimize_ a quantity that only appears in "$>=$" constraints. With the lab data ($r = (261.27, 560.89, 310.51, 105.80)$, $R = (505.67, 503.68, 701.78)$) the optimum is $z^* = 1238.47 slash 1711.13 approx 0.7238$: when tasks may be split, every computer ends at the same load, total request over total capacity.
@@ -182,7 +184,7 @@ When an exercise says "formulate as an LP", the answer is a list, always in this
 
 The last step catches most mistakes. A constraint mixing tons and cubic metres, or a sentence of the story that never became a constraint, shows up immediately.
 
-#summary[
+#tip(label: [The chapter in five lines])[
   + A model has data, decision variables, an objective (max/min) and constraints; only the variables are chosen.
   + LP = linear objective and constraints over real variables; write $x >= 0$ explicitly and ask for integers only when fractions are meaningless.
   + Ratios become linear by multiplying through by the (non-negative) denominator; balances are equalities.
@@ -194,7 +196,7 @@ The last step catches most mistakes. A constraint mixing tons and cubic metres, 
 
 #chapter-time()
 
-#tier("warm")
+=== Warm-up
 
 #exercise("ch1-w1", time: 4, tier: "warm")[Which of these are linear in the variables $x, y$? (a) $3x - 2y + 7$; (b) $x y$; (c) $x slash 4 + y$; (d) $x slash y$; (e) $|x|$; (f) $2^3 x$; (g) $min(x, y)$.]
 
@@ -202,11 +204,13 @@ The last step catches most mistakes. A constraint mixing tons and cubic metres, 
 
 #exercise("ch1-w3", time: 5, tier: "warm")[In the factory model, a fourth machine type, polishing, is added: PROD1 and PROD5 need 2 h each per unit, there is one polisher and it works only one shift a day. Write the new constraint.]
 
-#tier("practice", note: [one technique at a time; formulate, then check the optimum in the answers])
+=== Practice
+
+_One technique at a time; formulate, then check the optimum in the answers._
 
 #exercise("lp-sheet-1", source: "LP sheet · Ex 1", time: 12)[A company makes three products on four workstations. Production times (minutes per unit) and profits (€ per unit) depend on the workstation:
 
-#btable(columns: 9, align: center, header: ([], [time WS1], [WS2], [WS3], [WS4], [profit WS1], [WS2], [WS3], [WS4]),
+#table(columns: (auto,) + (1fr,) * 8, align: center, table.header([], [time WS1], [WS2], [WS3], [WS4], [profit WS1], [WS2], [WS3], [WS4]),
   [Product 1], [5], [7], [4], [10], [10], [8], [6], [9],
   [Product 2], [6], [12], [8], [15], [18], [20], [15], [17],
   [Product 3], [13], [14], [9], [17], [15], [16], [13], [17])
@@ -217,7 +221,7 @@ Each workstation has 35 working hours next week. At least 100 units of product 1
 
 #exercise("lp-sheet-6", source: "LP sheet · Ex 6", time: 15)[A portfolio manager has 10 M€ to invest in five bonds:
 
-#btable(columns: 4, align: (center, left, center, center), header: ([bond], [type], [risk], [annual return]),
+#table(columns: 4, align: (center, left, center, center), table.header([bond], [type], [risk], [annual return]),
   [A], [municipal], [2], [4.3 %], [B], [corporate], [5], [2.7 %], [C], [government], [1], [2.5 %],
   [D], [government], [1], [2.2 %], [E], [municipal], [3], [4.5 %])
 
@@ -227,20 +231,22 @@ Government bonds must total at least 4 M€ and the average risk cannot exceed 1
 
 #exercise("lp-sheet-8", source: "LP sheet · Ex 8", time: 15)[Four products with profits 10, 15, 22, 17 €/unit and sales limits 50, 60, 85, 70 units go through three assembly stages. Man-hours per unit:
 
-#btable(columns: 5, align: center, header: ([], [P1], [P2], [P3], [P4]), [stage A], [2], [2], [1], [1], [stage B], [2], [4], [1], [2], [stage C], [3], [6], [1], [5])
+#table(columns: 5, align: center, table.header([], [P1], [P2], [P3], [P4]), [stage A], [2], [2], [1], [1], [stage B], [2], [4], [1], [2], [stage C], [3], [6], [1], [5])
 
 Nominal hours are 160 (A), 200 (B) and 80 (C). Workers of stage B may spend up to 20 % of their time on stage A, and workers of stage C up to 30 % of theirs on stage A. The ratio (units of P1)/(units of P4) must lie between 0.9 and 1.15. Formulate the LP.]
 
 #exercise("lp-sheet-2", source: "LP sheet · Ex 2", time: 15)[A cargo plane has three compartments with weight limits 10, 16, 8 t and volume limits 6800, 8700, 5300 m³ (front, centre, rear). For balance, (weight in a compartment)/(its weight limit) must be the same in all three. Four cargoes are offered (any fraction can be taken):
 
-#btable(columns: 4, align: center, header: ([cargo], [weight (t)], [volume (m³/t)], [profit (€/t)]),
+#table(columns: 4, align: center, table.header([cargo], [weight (t)], [volume (m³/t)], [profit (€/t)]),
   [C1], [18], [480], [310], [C2], [15], [650], [380], [C3], [23], [580], [350], [C4], [12], [390], [285])
 
 Formulate the LP that decides how much of each cargo to accept and where to put it.]
 
 #exercise("lp-sheet-4", source: "LP sheet · Ex 4", time: 15)[Four products are made on machines A and B; minutes per unit are P1: 10 on A and 27 on B; P2: 12/19; P3: 13/33; P4: 8/23. Profits are 10, 12, 17, 8 €/unit. P1 must go through both machines; P2, P3, P4 need only one, A or B. Floor space for a week's production is 50 m², and a unit takes 0.1, 0.15, 0.5, 0.05 m². Over a week, units of P2 should be about twice the units of P3 (±5 %). Machine A is down 5 % of the time and B 7 %. The working week is 35 hours. Formulate the LP.]
 
-#tier("exam", note: [mixes several techniques; time yourself])
+=== Exam level
+
+_Mixes several techniques; time yourself._
 
 #exercise("lp-sheet-5", source: "LP sheet · Ex 5", time: 20)[These 19 pairs $(x_k, y_k)$ were measured:
 

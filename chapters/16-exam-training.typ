@@ -14,7 +14,7 @@ Everything in this chapter mixes topics on purpose. Practising one technique at 
 
 == The exam
 
-#btable(columns: (auto, auto, 1fr), header: ([question], [points], [what it always asks]),
+#table(align: left, columns: (auto, auto, 1fr), table.header([question], [points], [what it always asks]),
   [Q1], [2.1], [A $2 times 4$ LP in canonical form and a feasible basis: basic values, objective, reduced costs, optimality of each non-basic variable with the ratio test (June); or optimality proof plus "do we need to branch?" (January). Answered in the gaps of the statement.],
   [Q2], [3.9], [A story. (a) explain an OPL fragment; then variables (if not given), constraints with meaning, objective with direction; "are other constraints needed?".],
   [Q3], [4.0], [Same story. (a) greedy: candidates, $q(dot)$ with formula and text, tailored pseudocode. (b) BRKGA: chromosome, fitness, decoder (as a change of the greedy), sometimes a two-chromosome illustration.],
@@ -93,10 +93,11 @@ The application slides describe placing virtual machines (VMs) in a federation o
 
 == Mock exam
 
-Three hours, no notes, answers on paper. The solutions are with the other answers at the back.
+Three hours, no notes, answers on paper. The solutions are at the end of this chapter, with the others.
 
 #exercise("mock-q1", source: "Mock exam · Q1 (2.1 pts.)", time: 25, tier: "exam")[Consider the LP
-$ min -2 x_0 + 2 x_1 + 2 x_2 + x_3 quad "s.t." quad x_0 + x_2 + x_3 = 2, quad -x_1 + x_3 = -2, quad x_i >= 0. $
+$ min -2 x_0 + 2 x_1 + 2 x_2 + x_3 quad "s.t." quad & x_0 + x_2 + x_3 = 2, \
+  & -x_1 + x_3 = -2, quad x_i >= 0. $
 The variables $(x_2, x_1)$ form a feasible basis. (a) Give the values of the basic variables. (b) Give the objective value at the basic solution. (c) Give the reduced costs of $x_0$ and $x_3$. (d) Does $x_0$ satisfy the optimality conditions? If not, give the best value it can be assigned according to the ratio test ($+infinity$ if none). (e) The same for $x_3$.]
 
 #exercise("mock-q2", source: "Mock exam · Q2 (3.9 pts.)", time: 65, tier: "exam")[The faculty schedules the $n$ final exams of a semester into $m$ consecutive time slots $1, dots, m$. Exam $e$ has $s_e$ students; at most $S$ students can sit exams in the same slot. $A$ is an $n times n$ symmetric 0–1 matrix with $A_(e f) = 1$ if exams $e$ and $f$ share at least one student. Two exams that share a student cannot be in the same slot, nor in consecutive slots. The faculty wants the exam period to end as early as possible. Binary variables $x_(e t)$: "exam $e$ is held in slot $t$".
@@ -107,7 +108,7 @@ The variables $(x_2, x_1)$ form a feasible basis. (a) Give the values of the bas
 
 #exercise("mock-q3", source: "Mock exam · Q3 (4 pts.)", time: 70, tier: "exam")[For the timetabling problem of the previous question, develop a heuristic including the objective function. (a) Greedy: the set of candidates, the greedy function $q(dot)$ (notation and a short text), and the tailored pseudocode. Run it on: 6 exams with $s = (40, 30, 50, 20, 60, 30)$, $S = 100$, conflicts 1–2, 1–3, 2–3, 3–4, 4–5, 5–6, and $m = 8$. (b) BRKGA: chromosome, fitness and decoder.]
 
-#summary[
+#tip(label: [The chapter in five lines])[
   + Q1 25 min, Q2 65, Q3 70, checking 20; start with Q1.
   + Partial credit: meanings and the greedy function earn points even when a formula slips.
   + Check Q1 by substitution, Q2 by extreme cases and units, Q3 by direction, infeasible value, termination and INFEASIBLE exit.

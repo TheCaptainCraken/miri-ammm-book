@@ -1,6 +1,4 @@
-#import "../template.typ": *
-
-== Chapter 16
+#import "../refs.typ": answer, exref, slidenote
 
 #answer("drill")[(1) It limits $x_5$ to 3 (coefficient $-1$); it does not limit $x_1$. [Ch. 4] (2) $a <= b + c$. [5] (3) $4 + 0.5 dot 5 = 6.5$: ${4, 6}$. [13] (4) $sum_i x_i = 2$. [5] (5) $x_2 <= 2$ and $x_2 >= 3$. [8] (6) Yes, a disc. [9] (7) 90. [15] (8) The LP is infeasible. [4] (9) `dvar boolean y[I][J];` [2] (10) $z >= u_i$ for all $i$. [1] (11) Best improvement. [12] (12) ${1, 2, 4}$: 3. [14] (13) $M = 10 - 4 = 6$: $x + y <= 4 + 6(1 - delta)$. [6] (14) Optimal; not necessarily unique. [4] (15) Distance from the current city to an unvisited one, minimized. [11] (16) $o_(t+1) <= o_t$. [7] (17) A large penalty (plus the amount of violation). [15] (18) $binom(4, 2) = 6$. [3] (19) $w <= x$, $w <= y$, $w >= x + y - 1$. [6] (20) The best solution met on the path. [14]]
 

@@ -1,6 +1,4 @@
-#import "../template.typ": *
-
-== Chapter 2
+#import "../refs.typ": answer, exref, slidenote
 
 #answer("ch2-a")[(a) `dvar boolean y[1..n][1..m];` (b) `forall (i in 1..n) sum(j in 1..m) y[i][j] == 1;` (c) The Statistics tab (after a run), or the engine log.]
 

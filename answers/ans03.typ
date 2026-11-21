@@ -1,6 +1,4 @@
-#import "../template.typ": *
-
-== Chapter 3
+#import "../refs.typ": answer, exref, slidenote
 
 #answer("ch3-yt1")[$x_0 = 2 + x_1 + x_3$; then $-(2 + x_1 + x_3) + 2 x_1 + x_2 + x_3 = 1$ gives $x_2 = 3 - x_1$. Basic solution $x_0 = 2$, $x_2 = 3$ ($x_1 = x_3 = 0$): feasible. Check: $-2 + 0 + 0 = -2$ ✓, $-2 + 0 + 3 + 0 = 1$ ✓.]
 

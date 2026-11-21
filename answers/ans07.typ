@@ -1,6 +1,4 @@
-#import "../template.typ": *
-
-== Chapter 7
+#import "../refs.typ": answer, exref, slidenote
 
 #answer("ch7-yt1")[$r_(t+1) <= r_t$; $q_t <= 500 r_t$; $2000 sum_(t=1)^4 r_t$ (added to a cost to be minimized).]
 

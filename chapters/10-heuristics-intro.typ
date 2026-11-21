@@ -30,7 +30,7 @@ The statement format matters for the exam: the official answers to question 3 op
 
 A *problem instance* is the model plus data. Its *size* is roughly the number of variables times the number of constraints (the size of the matrix $A$): P1 with 4 tasks and 3 computers has 13 variables and 10 constraints. Size grows fast: P2 has $|T| |C| + 1$ variables, so 400 tasks and 300 computers give 120 001 binaries.
 
-#fig("/figures/time-size.svg", caption: [Schematic: the time to solve an integer model grows explosively with the size of the instance and with its load.], wide: true)
+#figure(image("/figures/time-size.svg"), caption: [Schematic: the time to solve an integer model grows explosively with the size of the instance and with its load.])
 
 Solving time grows with size — explosively for integer models, since branch & bound may explore exponentially many nodes. It also grows with how *tight* the instance is. For the task-assignment problem the slides define
 $ "load" = (sum_(t in T) r_t) / (sum_(c in C) R_c). $
@@ -67,7 +67,7 @@ Scaling the random weights to the target total fixes the load exactly. For a fea
 
 For a differentiable function of real variables, calculus finds candidates for extrema: by Fermat's theorem they occur where the derivative is zero, and the second derivative tells minima from maxima. *Gradient descent* moves step by step against the gradient; it reaches a *local* minimum, and which one depends on where it starts.
 
-#fig("/figures/landscape.svg", caption: [Descent from the left stops in the local minimum $omega'$; the global minimum $omega^*$ lies elsewhere.])
+#figure(image("/figures/landscape.svg"), caption: [Descent from the left stops in the local minimum $omega'$; the global minimum $omega^*$ lies elsewhere.])
 
 Combinatorial problems have no derivatives, but the picture survives. The slides formalize it: a solution space $Omega$, an objective $f: Omega -> RR$, and the goal of finding $omega^* in Omega$ with $f(omega^*) <= f(omega)$ for all $omega in Omega$. Moving from a solution to a "nearby" one (a small change: reassign one task) is the combinatorial analogue of a small step, and a solution that no small change improves is a *local minimum* $omega'$.
 
@@ -90,7 +90,7 @@ The application slides show the pattern in research problems: restoring connecti
   + Why does NP-hardness make heuristics important?
 ]
 
-#summary[
+#tip(label: [The chapter in five lines])[
   + Methodology: statement → model → solve; if too slow, reformulate, decompose or use heuristics.
   + Instance = model + data; size ≈ variables × constraints; solving time explodes with size and with load.
   + Generators should control size, load and seed; check simple feasibility conditions first.
@@ -102,27 +102,33 @@ The application slides show the pattern in research problems: restoring connecti
 
 #chapter-time()
 
-#tier("warm")
+=== Warm-up
 
 #exercise("ch10-w1", time: 4, tier: "warm")[Write the problem statement (Given / Output / Objective / Constraints) of Lab 2's P2.]
 
 #exercise("ch10-w2", time: 3, tier: "warm")[How many variables and constraints does P2 have with $|T| = 50$ and $|C| = 10$?]
 
-#tier("practice")
+=== Practice
 
 #exercise("ch10-p1", time: 8)[For the instance $r = (261.27, 560.89, 310.51, 105.80)$, $R = (505.67, 503.68, 701.78)$, compute the load. By how much could every request be scaled up (keeping the capacities) before P1 becomes infeasible?]
 
 #exercise("ch10-p2", time: 10)[Complete the instance generator of §10.2 so that it rejects instances where some task fits in no computer, and explain why it would be a mistake to simply discard large tasks instead.]
 
-#tier("tool", note: [Lab 3 (b) and Lab 4, part A])
+=== CPLEX / OPL
+
+_Lab 3 (b) and Lab 4, part A._
 
 #exercise("lab4-a", source: "Lab 4 · part A; Lab 3 · task (b)", time: 20, tier: "tool")[Generate instances of increasing size (for example 10, 20, 40, 80 and 160 tasks, with $|C| = |T| slash 4$ and load 0.7) and solve them with the P2 model in CPLEX, stopping after 30 minutes or at a 1 % gap. Which OPL statements set these limits? Plot (or tabulate) the time to solve against the size. What do you expect to see as the load approaches 1?]
 
-#tier("exam", note: [the opening of every question 3])
+=== Exam level
+
+_The opening of every question 3._
 
 #exercise("ch10-e1", source: "new, exam style", time: 8, tier: "exam")[For the ISS-crew story of #exref("jun26-q2"), write the list of constraints C1, C2, … and the objective in words, as the official solutions do before designing a greedy. Then say what a candidate could be for a constructive algorithm.]
 
-#tier("review", note: [from Chapters 5 and 8])
+=== Spaced review
+
+_From Chapters 5 and 8._
 
 #exercise("ch10-r1", source: "review of Ch. 8", time: 4, tier: "review")[Explain why a branch & bound run can be stopped at "1 % gap" with a guarantee, while a heuristic gives no such guarantee.]
 

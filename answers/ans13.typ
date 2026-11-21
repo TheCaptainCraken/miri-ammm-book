@@ -1,6 +1,4 @@
-#import "../template.typ": *
-
-== Chapter 13
+#import "../refs.typ": answer, exref, slidenote
 
 #answer("ch13-yt1")[$q_max = 10$, $q_min = 2$. $alpha = 0.25$: threshold $10 - 0.25 dot 8 = 8$, RCL ${e_3, e_4}$. $alpha = 0.5$: threshold 6, RCL ${e_2, e_3, e_4}$. $alpha = 0$ gives the pure greedy (RCL = the best, up to ties).]
 

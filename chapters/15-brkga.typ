@@ -26,7 +26,7 @@ Genetic algorithms imitate natural selection on a population of solutions. Each 
 + *mutate* some children slightly;
 + form the *next generation* (often keeping the best few unchanged: elitism).
 
-The difficulty is the encoding. For the TSP, the natural chromosome is the tour itself, a permutation such as 124385967. Crossing two permutations naively — say exchanging positions 4–7 of 124385967 and 452187693 — gives 124187667 and 452385993, which repeat cities and miss others; they must be *repaired* (duplicates replaced by the missing cities), which the slides show as 524187693 and 412385967. A mutation such as *inversion* reverses a segment: 124385967 → 124958367. Every problem needs its own crossover, mutation and repair, and they are easy to get wrong. #think[What property should an encoding have so that _any_ crossover of two chromosomes gives a valid chromosome?]
+The difficulty is the encoding. For the TSP, the natural chromosome is the tour itself, a permutation such as 124385967. Crossing two permutations naively — say exchanging positions 4–7 of 124385967 and 452187693 — gives 124187667 and 452385993, which repeat cities and miss others; they must be *repaired* (duplicates replaced by the missing cities), which the slides show as 524187693 and 412385967. A mutation such as *inversion* reverses a segment: 124385967 → 124958367. Every problem needs its own crossover, mutation and repair, and they are easy to get wrong. #question(label: [Think first])[What property should an encoding have so that _any_ crossover of two chromosomes gives a valid chromosome?]
 
 == Random keys and the decoder
 
@@ -44,7 +44,7 @@ $ q'(e, S) = "ch"_e dot q(e, S) $
 
 == Evolution in BRKGA
 
-#fig("/figures/brkga.svg", caption: [One generation of BRKGA: the elite is copied, new random mutants are added, and the rest are children of one elite and one non-elite parent.], wide: true)
+#figure(image("/figures/brkga.svg"), caption: [One generation of BRKGA: the elite is copied, new random mutants are added, and the rest are children of one elite and one non-elite parent.])
 
 The population of $p$ chromosomes is sorted by fitness and split into an *elite* set (the best $p_e dot p$) and the rest. The next generation consists of
 - the elite, copied unchanged;
@@ -80,7 +80,7 @@ One trap: if $q$ can be 0, multiplying by $"ch"_e$ changes nothing and all zero 
   Task assignment (P2). Chromosome: #blank(w: 7em) genes. Decoder: process tasks in decreasing order of #blank(w: 6em) (or of $r_t$), and choose the computer minimizing $q'(chevron.l t, c chevron.r) = $ #blank(w: 8em). Fitness: #blank(w: 8em); if a task fits nowhere, fitness $=$ #blank(w: 8em).
 ]
 
-#summary[
+#tip(label: [The chapter in five lines])[
   + GA: population, fitness, selection, crossover, mutation; permutation encodings need problem-specific operators and repair.
   + BRKGA: chromosomes are vectors of random keys in $[0, 1)$; every vector is valid; all problem knowledge is in the decoder.
   + Decoder = the greedy with keys plugged in, e.g. $q' = "ch"_e dot q$ (beware $q = 0$), or keys as priorities.
@@ -92,23 +92,27 @@ One trap: if $q$ can be 0, multiplying by $"ch"_e$ changes nothing and all zero 
 
 #chapter-time()
 
-#tier("warm")
+=== Warm-up
 
 #exercise("ch15-w1", time: 3, tier: "warm")[With $rho = 0.7$, what is the probability that a child of a 5-gene crossover inherits all five keys from the elite parent?]
 
 #exercise("ch15-w2", time: 4, tier: "warm")[Apply inversion of positions 2–5 to the tour 1 2 3 4 5 6 and give the result. Which edges changed?]
 
-#tier("practice")
+=== Practice
 
 #exercise("ch15-p1", time: 10)[Run the slides' TSP decoder with chromosome 1, whose keys are all 1 for every edge. Which tour does it build and how long is it? Why do the two chromosomes give different tours?]
 
 #exercise("ch15-p2", time: 10)[A colleague proposes for the ISS crew the decoder $q'(i, S) = "ch"_i dot q(i, S)$ with $q$ = added training cost. Show that at the first step it ignores the chromosome, and fix it.]
 
-#tier("tool", note: [Lab 4, part D])
+=== CPLEX / OPL
+
+_Lab 4, part D._
 
 #exercise("lab4-d", source: "Lab 4 · part D", time: 15, tier: "tool")[Describe the decoder of the Python BRKGA for P2. Tune its parameters (population size, $p_e$, $p_m$, $rho$) on a few instances, then compare it with GRASP and CPLEX on the generated instances, with the same time limits.]
 
-#tier("exam", note: [question 3(b) of three past exams; your part (a) is in Chapter 11])
+=== Exam level
+
+_Question 3(b) of three past exams; your part (a) is in Chapter 11._
 
 #exercise("jun25-q3b", source: "Final Jun 2025 · Q3(b)", time: 12, tier: "exam")[For the "First Dates" problem and the BRKGA metaheuristic, specify the structure of the chromosome, the fitness function, and the pseudocode of the decoder tailored to the problem (avoid writing the general algorithm).]
 
@@ -116,7 +120,9 @@ One trap: if $q$ can be 0, multiplying by $"ch"_e$ changes nothing and all zero 
 
 #exercise("jun26-q3b", source: "Final Jun 2026 · Q3(b)", time: 18, tier: "exam")[For the ISS-crew problem: specify the structure of the chromosome and the pseudocode of the decoder (you may just highlight the differences with the greedy, in particular how you use the chromosome); generate two chromosomes and illustrate how the decoder builds two different solutions. (For the illustration, use the official example: $N = {1, 2, 3, 4}$; $E$ has rows $(1, 1, 1, 0)$, $(1, 1, 0, 0)$, $(1, 0, 1, 1)$, $(0, 0, 1, 1)$ ($e_(i j) = 1$ if $i, j$ collaborated); training costs $C$ with rows $(0, 0, 0, 1)$, $(0, 0, 2, 3)$, $(0, 2, 0, 0)$, $(1, 3, 0, 0)$; chromosomes $(1.0, 1.0, 1.0, 1.0)$ and $(1.0, 0.2, 1.0, 1.0)$; crew of $K = 2$.)]
 
-#tier("review", note: [from Chapters 9, 12 and 14])
+=== Spaced review
+
+_From Chapters 9, 12 and 14._
 
 #exercise("ch15-r1", source: "review of Ch. 14", time: 3, tier: "review")[Two assignments of 6 users differ for 2 users. What is $|S plus.o S'|$ for the corresponding sets of (user, access point) pairs?]
 

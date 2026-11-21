@@ -20,7 +20,7 @@ The greedy never looks back: a decision made at step 2 stays even when step 7 sh
 
 The choice of moves _is_ the design. The slides list the usual ones for subset problems: *remove* one element of $S$; *exchange* one element of $S$ with one outside; exchange two elements of $S$ for one outside. For assignment problems: *reassign* one item to another place, or *swap* the places of two items. For the TSP: *2-opt*, remove two edges and reconnect the two paths the other way.
 
-#think[Why must a move keep the solution feasible, or at least be checked for feasibility?]A neighbourhood trades power against cost. A larger neighbourhood (exchange two-for-one instead of one-for-one) contains more improvements and gives better local optima, but each step examines more neighbours. A local optimum for one neighbourhood need not be one for another — which is why combining neighbourhoods helps.
+#question(label: [Think first])[Why must a move keep the solution feasible, or at least be checked for feasibility?]A neighbourhood trades power against cost. A larger neighbourhood (exchange two-for-one instead of one-for-one) contains more improvements and gives better local optima, but each step examines more neighbours. A local optimum for one neighbourhood need not be one for another — which is why combining neighbourhoods helps.
 
 #stopbox("ch12-a")[
   + Define a local optimum with respect to a neighbourhood.
@@ -59,7 +59,7 @@ The objective "maximum load" has a trap: many moves leave the maximum unchanged 
 
 *Network planning.* Neighbourhood: reassign one user to another access point (routers are then re-dimensioned: each access point gets the cheapest model that serves its users). From the greedy's 460, moving user 1 from $a_3$ to $a_4$ lets $a_3$ downgrade from R3 to R2 (its remaining users need capacity 8 and reach 3) while $a_4$'s R1 still has room: cost 420 (Figure 12.1).
 
-#fig("/figures/network-planning.svg", caption: [Network planning on the slides' instance. Moving user 1 from $a_3$ to $a_4$ lets $a_3$ downgrade from R3 to R2: 460 → 420.], wide: true)
+#figure(image("/figures/network-planning.svg"), caption: [Network planning on the slides' instance. Moving user 1 from $a_3$ to $a_4$ lets $a_3$ downgrade from R3 to R2: 460 → 420.])
 
 *TSP, 2-opt.* The nearest-neighbour tour 5–2–1–4–3–5 (length 40) has a 2-opt neighbour obtained by removing edges $(2, 1)$ and $(3, 5)$ and reconnecting: 5–2–3–4–1–5, length 36, optimal.
 
@@ -75,7 +75,7 @@ The objective "maximum load" has a trap: many moves leave the maximum unchanged 
   + Why can the "maximum load" objective make local search stall?
 ]
 
-#summary[
+#tip(label: [The chapter in five lines])[
   + Local search improves a complete solution by moves until no neighbour is better: a local optimum for that neighbourhood.
   + Neighbourhoods: remove, insert, exchange, reassign, swap, 2-opt; bigger is stronger but slower.
   + First improvement takes the first better neighbour; best improvement scans all and takes the best.
@@ -87,13 +87,13 @@ The objective "maximum load" has a trap: many moves leave the maximum unchanged 
 
 #chapter-time()
 
-#tier("warm")
+=== Warm-up
 
 #exercise("ch12-w1", time: 3, tier: "warm")[How many 2-opt neighbours does a tour of $n$ cities have?]
 
 #exercise("ch12-w2", time: 3, tier: "warm")[Is ${p_2, p_3, p_6}$ a local optimum of set covering for the "remove one set" neighbourhood? For "exchange one set"?]
 
-#tier("practice")
+=== Practice
 
 #exercise("ch12-p1", time: 10)[List all 2-opt neighbours of the tour 5–2–1–4–3–5 with their lengths (distances of Figure 11.1). Which one does best improvement choose?]
 
@@ -101,15 +101,21 @@ The objective "maximum load" has a trap: many moves leave the maximum unchanged 
 
 #exercise("ch12-p3", time: 10)[In network planning, why is "reassign one user" evaluated by re-dimensioning only two access points? Write the change in cost of a move as a formula.]
 
-#tier("tool", note: [Lab 4, part B])
+=== CPLEX / OPL
+
+_Lab 4, part B._
 
 #exercise("lab4-b2", source: "Lab 4 · part B (b)", time: 15, tier: "tool")[Describe in pseudocode the local search of the Python code for P2 (neighbourhoods "reassignment" and "exchange", policies first and best improvement). Then compare on the generated instances: greedy alone, greedy + local search with each neighbourhood and policy — quality and time.]
 
-#tier("exam", note: [local search has never been asked; this is how it could be])
+=== Exam level
+
+_Local search has never been asked; this is how it could be._
 
 #exercise("ls-new-exam", source: "new, exam style", time: 20, tier: "exam")[For the neighbours problem (#exref("jan26-q2")) and a solution $X$ from your greedy: (a) propose two neighbourhoods and say which moves keep the solution feasible; (b) explain how to evaluate a move without recomputing everything; (c) write the pseudocode of a local search with best improvement using both neighbourhoods.]
 
-#tier("review", note: [from Chapters 4, 8 and 11])
+=== Spaced review
+
+_From Chapters 4, 8 and 11._
 
 #exercise("ch12-r1", source: "review of Ch. 11", time: 4, tier: "review")[In a greedy that maximizes $q$, why must infeasible candidates receive $-infinity$ and not $+infinity$?]
 

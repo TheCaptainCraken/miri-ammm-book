@@ -4,8 +4,6 @@
 // Nothing here needs editing when a note or an exercise is added.
 #import "../template.typ": *
 
-// tables in the appendices also use the margin column (`wide` comes from template.typ)
-
 #let page-of(loc) = if target() != "paged" { link(loc)[↗] } else { link(loc, str(loc.page())) }
 #let answer-page(id) = {
   let a = query(label("ans-" + id))
@@ -14,40 +12,36 @@
 
 #set heading(numbering: none)
 
-#unnumbered[Appendix A · On the slides]
+= Appendix A · On the slides
 
-Every correction "On the slides" (and its variants for the official solutions, the exercise sheets and the lab statements), in book order. _Says_ is what the source says; _correct_ is what the book uses instead, with the reason.
+Every correction "On the slides" (and its variants for the official solutions, the exercise sheets and the lab statements), in book order. _Says_ is what the source says; _correct_ is what the book uses instead, then the reason.
 
 #context {
   let notes = query(<slidenote>)
   let kinds = (slides: "slides", solution: "official solution", sheet: "exercise sheet", lab: "lab statement")
-  wide(btable(columns: (auto, 0.8fr, 1fr, 1.5fr), size: 0.8em,
-    header: ([p.], [where], [says], [correct, and why]),
-    ..notes.map(n => {
-      let v = n.value
-      (page-of(n.location()),
-       [#v.deck, #v.where \ #text(fill: grey, size: 0.9em)[#kinds.at(v.kind)]],
-       v.says,
-       [#v.correct #text(fill: grey)[— #v.why]])
-    }).flatten()))
+  for n in notes {
+    let v = n.value
+    [*#v.deck, #v.where* (#kinds.at(v.kind), page #page-of(n.location())). _Says:_ #v.says _Correct:_ #v.correct — #v.why]
+    parbreak()
+  }
   [#notes.len() notes in total.]
 }
 
-#unnumbered[Appendix B · Where each exercise of the course is]
+= Appendix B · Where each exercise of the course is
 
-Every question of the five past finals, every exercise of the two homework sheets and every lab task, with its place in the book and the page of its answer.
+Every question of the five past finals, every exercise of the two homework sheets and every lab task, with its place in the book and the page of its solution.
 
 #let source-table(prefixes) = context {
   let rows = ()
   for p in prefixes {
     // natural order inside each source: Q1 before Q2(a), Ex 2 before Ex 10
-    let key(m) = m.value.source.replace("tasks", "task").replace(regex("\\d+"), d => "0000".slice(d.text.len()) + d.text)
-    for m in exercises-with(p).sorted(key: key) {
-      rows.push((m.value.source, link(m.location(), m.value.n), page-of(m.location()), answer-page(m.value.id)))
+    let key(e) = e.source.replace("tasks", "task").replace(regex("\\d+"), d => "0000".slice(d.text.len()) + d.text)
+    for e in exercises-with(p).sorted(key: key) {
+      rows.push((e.source, link(e.location, e.n), page-of(e.location), answer-page(e.id)))
     }
   }
-  wide(btable(columns: (1fr, auto, auto, auto), size: 0.85em, align: (left, right, right, right),
-    header: ([source], [exercise], [page], [answer]), ..rows.flatten()))
+  table(columns: (1fr, auto, auto, auto),
+    table.header([source], [exercise], [page], [solution]), ..rows.flatten())
 }
 
 == Past finals
@@ -62,7 +56,7 @@ Every question of the five past finals, every exercise of the two homework sheet
 
 #source-table(("Lab 1", "Lab 2", "Lab 3", "Lab 4"))
 
-#unnumbered[Bibliography]
+= Bibliography
 
 #set par(hanging-indent: 1.2em)
 

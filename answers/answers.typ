@@ -1,10 +1,7 @@
-// All answers, chapter by chapter.  Each file only calls #answer(id)[...].
-#import "../template.typ": *
-#unnumbered[Answers]
-#set heading(numbering: none)
-
-Answers follow the order of the chapters: first the "Your turn" examples, then the "Stop and answer" boxes, then the exercises. A number like 4.7 refers to Exercise 4.7; click it to jump back. Compare your answer _after_ trying: reading an answer feels like understanding it, which is not the same thing.
-
+// Every answer in the book, one file per chapter.  Nothing here is printed:
+// template.typ reads the #answer(id)[...] calls and gives each answer to its
+// exercise, Your turn or Stop box, and craken prints it with the chapter.
+// A new answers file only needs a line here.
 #include "ans01.typ"
 #include "ans02.typ"
 #include "ans03.typ"

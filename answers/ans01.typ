@@ -1,6 +1,4 @@
-#import "../template.typ": *
-
-== Chapter 1
+#import "../refs.typ": answer, exref, slidenote
 
 #answer("ch1-yt1")[$max 1.5 x_1 + 4 x_2$; flour $0.6 x_1 + 0.3 x_2 <= 120$; oven $0.1 x_1 + 0.2 x_2 <= 40$; cake share $x_2 >= 0.25(x_1 + x_2)$, i.e. $0.75 x_2 - 0.25 x_1 >= 0$. (The optimum makes only cake: 200 kg, 800 €; the oven is the bottleneck.)]
 

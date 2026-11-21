@@ -1,6 +1,4 @@
-#import "../template.typ": *
-
-== Chapter 9
+#import "../refs.typ": answer, exref, slidenote
 
 #answer("ch9-yt1")[$x = lambda_1 + 2 lambda_2 + 3 lambda_3$; $y = lambda_1 + 4 lambda_2 + 9 lambda_3$. With $+x^2$ minimized (convex term): no SOS2 needed. With $-x^2$ minimized (concave term): needed. With $lambda_1 = lambda_2 = 0.5$: $x = 1.5$, $y = 2.5$, true value $2.25$ — the approximation overestimates a convex function between breakpoints.]
 

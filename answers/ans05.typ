@@ -1,6 +1,4 @@
-#import "../template.typ": *
-
-== Chapter 5
+#import "../refs.typ": answer, exref, slidenote
 
 #answer("ch5-yt1")[(a) $p_1 + p_2 + p_3 + p_4 + p_5 <= 3$; (b) $p_1 <= p_2$; (c) $p_3 + p_4 <= 1$; (d) $p_4 + p_5 >= 1$; (e) clause $not p_2 or not p_5 or not p_1$: $(1 - p_2) + (1 - p_5) + (1 - p_1) >= 1$, i.e. $p_1 + p_2 + p_5 <= 2$.]
 

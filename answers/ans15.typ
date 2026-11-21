@@ -1,6 +1,4 @@
-#import "../template.typ": *
-
-== Chapter 15
+#import "../refs.typ": answer, exref, slidenote
 
 #answer("ch15-yt1")[$|T|$ genes, one key per task (or $|T| dot |C|$, one per pair). Process tasks in decreasing order of $"ch"_t dot r_t$ (keys perturb the order), and choose $c$ minimizing $q' = "ch"_t dot ("used"(c) + r_t) slash R_c$ — or, with one key per pair, $"ch"_(t c) dot ("used"(c) + r_t) slash R_c$. Fitness: the maximum load of the decoded assignment; if a task fits nowhere, a penalty such as $1000 +$ the unassigned request.]
 

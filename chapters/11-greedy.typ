@@ -23,7 +23,9 @@ A *combinatorial optimization problem* has a finite ground set $N$ of elements w
 Two examples from the slides. In the *knapsack* problem, items have weights $a_i$ and values $c_i$, and we choose items of total weight at most $b$ maximizing value: $max sum c_i x_i$, $sum a_i x_i <= b$, $x in {0,1}^n$. In the *travelling salesman problem* (TSP), cities are vertices of a graph with distances; the elements are the edges, and a feasible set is a Hamiltonian cycle (a tour visiting each city once). With $n$ cities there are $(n-1)! slash 2$ tours: 12 for 5 cities, 181 440 for 10, about $6.08 times 10^16$ for 20. Enumerating them is hopeless beyond toy sizes.
 
 The ILP of the TSP (Dantzig–Fulkerson–Johnson) uses $x_e in {0,1}$ for each edge:
-$ min sum_e c_e x_e quad "s.t." quad sum_(e in delta(v)) x_e = 2 quad forall v in V, quad sum_(e in E(U)) x_e <= |U| - 1 quad forall U subset V, 2 <= |U| <= |V| - 1, $
+$ min quad & sum_e c_e x_e \
+  "s.t." quad & sum_(e in delta(v)) x_e = 2 quad forall v in V, \
+  & sum_(e in E(U)) x_e <= |U| - 1 quad forall U subset V, 2 <= |U| <= |V| - 1, $
 where $delta(v)$ are the edges at $v$ and $E(U)$ the edges inside $U$. The second family forbids subtours — one constraint per subset of cities, exponentially many. #slidenote(deck: "Greedy algorithms", where: "slide 7 (DFJ)", says: [Sub-tour elimination "$sum_(e in S) x_e = |S| - 1$ for all $S subset E$, $|S| < N$", and "$x_e = 0.1$".], correct: [$sum_(e in E(U)) x_e <= |U| - 1$ for all vertex subsets $U subset V$ with $2 <= |U| <= |V| - 1$; and $x_e in {0, 1}$.], why: [With "$=$" every subset would have to contain a path, which is impossible; the subsets are of cities, not edges; "0.1" is a typo for "0, 1".])
 
 == The greedy scheme
@@ -65,7 +67,7 @@ The greedy function is often a _ratio_ "value added / cost", maximized, or an _i
 
 Candidates are the edges $(u, v)$ from the last city $u$ of the partial tour to an unvisited city $v$; $q$ is the distance, minimized. Start anywhere, repeat until all cities are visited, close the tour.
 
-#fig("/figures/tsp-nn.svg", caption: [Nearest neighbour on the slides' five cities. From city 1 it finds a tour of length 36 (optimal here); from city 5 it is trapped into a 14-km edge and returns 40.], wide: true)
+#figure(image("/figures/tsp-nn.svg"), caption: [Nearest neighbour on the slides' five cities. From city 1 it finds a tour of length 36 (optimal here); from city 5 it is trapped into a 14-km edge and returns 40.])
 
 #example[Nearest neighbour from city 1][
   Distances: $d_(12) = 10$, $d_(13) = 12$, $d_(14) = 7$, $d_(15) = 9$, $d_(23) = 11$, $d_(24) = 17$, $d_(25) = 4$, $d_(34) = 5$, $d_(35) = 14$, $d_(45) = 9$. From 1 the nearest is 4 (7); from 4, city 3 (5); from 3, city 2 (11); from 2, city 5 (4); back to 1 (9). Tour 1–4–3–2–5–1, length 36 — the optimum. Starting from 5 instead: 5–2 (4), 2–1 (10), 1–4 (7), 4–3 (5), 3–5 (14): length 40. The last edge is forced and long. That is *myopia*: each step is locally best, and the price is paid at the end.
@@ -76,8 +78,8 @@ Candidates are the edges $(u, v)$ from the last city $u$ of the partial tour to 
 === Assigning tasks to computers (Labs 2 and 4)
 
 Candidates are pairs $chevron.l t, c chevron.r$. Tasks are processed in decreasing order of request (big rocks first), and for each task the computer is chosen by
-$ q(chevron.l t, c chevron.r, S) = ("usedCapacity"(c, S) + r_t) / R_c quad "(the load of " c " if " t " goes there)", $
-minimized over the computers where $t$ still fits.
+$ q(chevron.l t, c chevron.r, S) = ("usedCapacity"(c, S) + r_t) / R_c, $
+the load of $c$ if $t$ goes there, minimized over the computers where $t$ still fits.
 
 ```pseudo
 S <- {} ; for each c: used[c] <- 0
@@ -103,18 +105,20 @@ return S, max_c used[c] / R_c
 
 Elements $M = {1, dots, 5}$ must be covered by subsets $p_1, dots, p_8$ with costs:
 
-#btable(columns: 9, align: center, header: ([], [$p_1$], [$p_2$], [$p_3$], [$p_4$], [$p_5$], [$p_6$], [$p_7$], [$p_8$]),
+#table(columns: (auto,) + (1fr,) * 8, align: center, table.header([], [$p_1$], [$p_2$], [$p_3$], [$p_4$], [$p_5$], [$p_6$], [$p_7$], [$p_8$]),
   [covers], [3, 4], [3], [2], [2, 3, 4], [3, 4, 5], [1, 4, 5], [2, 3], [4],
   [cost], [2], [1], [1], [3], [3], [3], [2], [1])
 
-The ILP is $min sum_j c_j x_j$ with $sum_j a_(i j) x_j >= 1$ for each element $i$. The optimal cost is 5 (${p_6, p_7}$ or ${p_2, p_3, p_6}$). With $R$ the covered elements, the slides' greedy maximizes the number of newly covered elements, $q(p_j, R) = |p_j without R|$: it takes $p_4$ (3 new), then $p_6$ (2 new), cost 6. The cost-aware version minimizes $c_j slash |p_j without R|$, the cost per new element. #side[On this instance the costs equal the sizes $|p_j|$, so every ratio is 1 at the first step: the cost-aware greedy depends entirely on tie-breaking (lowest index gives $p_1, p_3, p_6$, cost 6).]
+The ILP is $min sum_j c_j x_j$ with $sum_j a_(i j) x_j >= 1$ for each element $i$. The optimal cost is 5 (${p_6, p_7}$ or ${p_2, p_3, p_6}$). With $R$ the covered elements, the slides' greedy maximizes the number of newly covered elements, $q(p_j, R) = |p_j without R|$: it takes $p_4$ (3 new), then $p_6$ (2 new), cost 6. The cost-aware version minimizes $c_j slash |p_j without R|$, the cost per new element. #note[On this instance the costs equal the sizes $|p_j|$, so every ratio is 1 at the first step: the cost-aware greedy depends entirely on tie-breaking (lowest index gives $p_1, p_3, p_6$, cost 6).]
 
 === Network planning
 
 Users $u$ (with capacity demand $"cr"_u$) must connect to access points $a$ where routers are installed; router models $m$ have cost $f_m$, capacity $k_m$ and reach $d_m$; minimize the total router cost. The greedy candidate is a user; $q(u, S) = min_a q(chevron.l u, a chevron.r, S)$ with the *incremental cost* of serving $u$ from $a$:
 $ q(chevron.l u, a chevron.r, S) = cases(
-  0 & "if the router at" a "already reaches" u "and has spare capacity",
-  f_m - f_a & "if" a "must be upgraded to the cheapest model" m "that can serve" u,
+  0 & "if the router at" a "already reaches" u,
+    & "and has spare capacity",
+  f_m - f_a & "if" a "must be upgraded to the cheapest",
+    & "model" m "that can serve" u,
   infinity & "if no model can serve" u "from" a) $
 (with $f_a = 0$ when $a$ has no router yet). The user with the smallest incremental cost is connected first. On the slides' instance (Figure 12.1) the greedy installs two R3 and one R1: cost 460. #slidenote(deck: "Greedy examples", where: "network planning, slides 15–19", says: [Several users tie on $q$; the trace picks one without stating why; from iteration #7 the row "cr" shows user 1 with 4.], correct: [The trace is reproduced by breaking ties by smallest distance $d(u, a)$, then smallest index; $"cr"_1 = 2$ throughout.], why: [Recomputed with `v11_heuristics_slides.py`: with these rules every iteration and the final cost 460 match.])
 
@@ -149,7 +153,7 @@ Every exam asks: "specify the set of candidates; the greedy function $q(dot)$, u
   - The optimum is items 1 and 4 with value #blank(). Why did the greedy miss it? #blank(w: 12em)
 ]
 
-#summary[
+#tip(label: [The chapter in five lines])[
   + Greedy = candidate set, greedy function, feasibility, objective, solution test; add the best candidate, update, repeat.
   + The greedy function is usually a value/cost ratio (max) or an incremental cost (min); infeasible candidates get the worst value.
   + "Adaptive": re-evaluate $q(e, S)$ after each insertion.
@@ -161,13 +165,13 @@ Every exam asks: "specify the set of candidates; the greedy function $q(dot)$, u
 
 #chapter-time()
 
-#tier("warm")
+=== Warm-up
 
 #exercise("ch11-w1", time: 3, tier: "warm")[In nearest neighbour for the TSP, identify the five pillars.]
 
 #exercise("ch11-w2", time: 4, tier: "warm")[Run nearest neighbour from city 2 on the five cities of Figure 11.1. Length?]
 
-#tier("practice")
+=== Practice
 
 #exercise("ch11-p1", time: 10)[Run the task greedy on Lab 2's five-task instance ($r = (261.27, 560.89, 310.51, 105.80, 344.7)$, same computers). What happens? Is the instance really infeasible?]
 
@@ -175,11 +179,15 @@ Every exam asks: "specify the set of candidates; the greedy function $q(dot)$, u
 
 #exercise("ch11-p3", time: 12)[Network planning (instance of the slides, Figure 12.1): with no routers installed, compute $q(u, emptyset)$ for users 1 and 4, explaining which access point and model give the minimum.]
 
-#tier("tool", note: [Lab 4, part B])
+=== CPLEX / OPL
+
+_Lab 4, part B._
 
 #exercise("lab4-b", source: "Lab 4 · part B (a), (c)", time: 15, tier: "tool")[Write the pseudocode of the greedy of the Python code for P2 and specify its greedy function. Then: solve the generated instances with "random only" (each task to a random computer where it fits) and with the greedy function. What do you expect to see in quality and in time, compared with CPLEX?]
 
-#tier("exam", note: [question 3(a) of three past exams; part (b) is in Chapter 15])
+=== Exam level
+
+_Question 3(a) of three past exams; part (b) is in Chapter 15._
 
 #exercise("jun25-q3a", source: "Final Jun 2025 · Q3(a)", time: 25, tier: "exam")[We want a heuristic for the "First Dates" problem (#exref("jun25-q2a"), #exref("jun25-q2be")), including its objective function. For a Greedy algorithm specify: the set of candidates; the greedy function $q(dot)$, using mathematical notation and a short descriptive text; the pseudocode of the algorithm tailored to the problem (avoid writing the general algorithm).]
 
@@ -187,7 +195,9 @@ Every exam asks: "specify the set of candidates; the greedy function $q(dot)$, u
 
 #exercise("jun26-q3a", source: "Final Jun 2026 · Q3(a)", time: 25, tier: "exam")[The same for the ISS-crew problem (#exref("jun26-q2")).]
 
-#tier("review", note: [from Chapters 6, 7 and 10])
+=== Spaced review
+
+_From Chapters 6, 7 and 10._
 
 #exercise("ch11-r1", source: "review of Ch. 10", time: 3, tier: "review")[What is the load of an instance with requests $(3, 5, 4)$ and capacities $(6, 10)$?]
 

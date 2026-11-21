@@ -34,7 +34,8 @@ Everything else about multi-period models is the single-period model of Chapters
 === Decisions that cannot be undone
 
 Some yes/no decisions are monotone in time. A mine that is closed for good cannot reopen; royalties are payable as long as it is kept open:
-$ o_(t+1) <= o_t quad ("once closed, closed"), quad w_t <= o_t quad ("only open mines work"). $
+$ o_(t+1) & <= o_t quad ("once closed, closed"), \
+  w_t & <= o_t quad ("only open mines work"). $
 Royalties are $sum_t "roy" dot o_t$, and the solver will close a mine as soon as it is not needed any more. A machine that must be down once in six months is the opposite: $sum_t d_t = 1$ with $d_t$ binary, or an integer count for a group of identical machines.
 
 #yourturn("ch7-yt1")[
@@ -58,7 +59,7 @@ An "or" between two constraints is a disjunction; one binary $o_(i j)$ ("$i$ bef
 $ S_i + p_i <= S_j + H (1 - o_(i j)), quad S_j + p_j <= S_i + H o_(i j). $
 With $o_(i j) = 1$ the first constraint is active and the second is relaxed by $H$; with $o_(i j) = 0$ the reverse. The constant $H$ must make a relaxed constraint always true: a *horizon* (an upper bound on any end time, such as the sum of all durations and waiting times) works.
 
-#revisit("ch7")[One binary $o$: $S_1 + 3 <= S_2 + H(1 - o)$ and $S_2 + 5 <= S_1 + H o$, with $H$ at least the latest possible end, e.g. $H = 8$ if nothing else forces idle time. In general $n$ tasks need one binary per pair, $binom(n, 2)$. #think[Why is one binary per _unordered_ pair enough, while the June 2024 exam uses one per _ordered_ pair?] In one dimension, "$i$ before $j$" and "$j$ before $i$" are complementary, so one binary per pair suffices. In two dimensions (time _and_ memory) there are four ways for two rectangles to be apart — left, right, below, above — and at least one must hold. Then it is convenient to have a binary per ordered pair and per dimension and to require their sum to be at least 1. That is the June 2024 model. #fig("/figures/packing.svg", caption: [June 2024: each job is a rectangle (duration × memory) inside the rented box $H_i times W_j$; two jobs are compatible if one is entirely after the other in time or entirely above it in memory.], margin: true)]
+#revisit("ch7")[One binary $o$: $S_1 + 3 <= S_2 + H(1 - o)$ and $S_2 + 5 <= S_1 + H o$, with $H$ at least the latest possible end, e.g. $H = 8$ if nothing else forces idle time. In general $n$ tasks need one binary per pair, $binom(n, 2)$. #question(label: [Think first])[Why is one binary per _unordered_ pair enough, while the June 2024 exam uses one per _ordered_ pair?] In one dimension, "$i$ before $j$" and "$j$ before $i$" are complementary, so one binary per pair suffices. In two dimensions (time _and_ memory) there are four ways for two rectangles to be apart — left, right, below, above — and at least one must hold. Then it is convenient to have a binary per ordered pair and per dimension and to require their sum to be at least 1. That is the June 2024 model. #figure(image("/figures/packing.svg", width: 60%), caption: [June 2024: each job is a rectangle (duration × memory) inside the rented box $H_i times W_j$; two jobs are compatible if one is entirely after the other in time or entirely above it in memory.])]
 
 #example[Packing jobs in time and memory (June 2024, the idea)][
   For jobs $k != k'$ define binaries $a_(k k')$ = "$k$ runs after $k'$ has finished" and $l_(k k')$ = "$k$'s memory block lies above $k'$'s". Link each to its meaning with a big-M that is valid by the bounds $0 <= "tr"_k <= H_r - h_k$ (the longest rental):
@@ -84,7 +85,7 @@ Two smaller patterns complete the toolbox.
 
 *Minimum purchases.* "If you buy from supplier $i$ in month $t$, buy at least $ell_i$" is the semi-continuous pattern of Chapter 6 with a period index; surplus that cannot be stored can be thrown away, which is just a waste variable $w_t >= 0$ in the balance.
 
-#summary[
+#tip(label: [The chapter in five lines])[
   + Multi-period: index by $t$; glue periods with balances $s_(t-1) + "in"_t = "out"_t + s_t$; add initial and final conditions.
   + Irreversible decisions: $o_(t+1) <= o_t$; activity only when open: $w_t <= o_t$.
   + Non-overlap of $i$ and $j$: one order binary and two big-M constraints, $M$ = a valid horizon.
@@ -96,13 +97,13 @@ Two smaller patterns complete the toolbox.
 
 #chapter-time()
 
-#tier("warm")
+=== Warm-up
 
 #exercise("ch7-w1", time: 4, tier: "warm")[In the three-month example, write the model in OPL-like notation with `forall (t in 1..3)`, taking care of $s_0$.]
 
 #exercise("ch7-w2", time: 4, tier: "warm")[Three tasks share one machine. List the order binaries and write the two constraints for the pair (1, 3).]
 
-#tier("practice")
+=== Practice
 
 #exercise("ilp-sheet-6", source: "ILP sheet · Ex 6", time: 15)[A medical company buys a drug from a set $M$ of suppliers. It needs $d_t$ units in month $t = 1, dots, T$ (entirely consumed). One unit from supplier $i$ in month $t$ costs $c_(i t)$ €, but if it buys from $i$ in a month it must buy at least $ell_i$ units that month. Surplus can be stored, at most $h$ units from one month to the next; beyond that it can be thrown away. Minimize the purchasing cost. Formulate as a MIP.]
 
@@ -114,7 +115,7 @@ Two smaller patterns complete the toolbox.
 
 #exercise("ilp-sheet-9", source: "ILP sheet · Ex 9", time: 25)[A factory makes seven products on four grinders, two vertical drills, three horizontal drills, a borer and a planer. Profit (€/unit) and hours per unit:
 
-#btable(columns: 8, align: center, header: ([], [P1], [P2], [P3], [P4], [P5], [P6], [P7]),
+#table(columns: (auto,) + (1fr,) * 7, align: center, table.header([], [P1], [P2], [P3], [P4], [P5], [P6], [P7]),
   [profit], [10], [6], [8], [4], [11], [9], [3],
   [grinding], [0.5], [0.7], [—], [—], [0.3], [0.2], [0.5],
   [vert. drilling], [0.1], [0.2], [—], [0.3], [—], [0.6], [—],
@@ -124,11 +125,13 @@ Two smaller patterns complete the toolbox.
 
 Machines down for maintenance: January 1 grinder; February 2 horizontal drills; March the borer; April 1 vertical drill; May 1 grinder and 1 vertical drill; June the planer and 1 horizontal drill. Market limits per month (P1–P7): Jan 500, 1000, 300, 300, 800, 200, 100; Feb 600, 500, 200, 0, 400, 300, 150; Mar 300, 600, 0, 0, 500, 400, 100; Apr 200, 300, 400, 500, 200, 0, 100; May 0, 100, 500, 100, 1000, 300, 0; Jun 500, 500, 100, 300, 1100, 500, 60. Up to 100 units of each product can be stored at 0.5 € per unit per month; no initial stock; 50 of each wanted at the end of June. A month has 24 days of two 8-hour shifts. (a) When and what should be made to maximize profit? Formulate as an LP. (b) Instead of the given maintenance plan, choose the best month for each machine to be down: each machine once in the six months, except that only two of the four grinders need maintenance. Extend the model. Can it be an LP?]
 
-#tier("exam")
+=== Exam level
 
 #exercise("jun24-q2bd", source: "Final Jun 2024 · Q2(b–d)", time: 25, tier: "exam")[The rental problem of #exref("jun24-q2a") (jobs with memory $w_k$ and duration $h_k$; rental durations $H_1 < dots < H_r$, capacities $W_1 < dots < W_s$, costs $p_(i j)$; variables $c_(i j)$, $"tr"_k$, $"lc"_k$). (b) Give a linear constraint expressing that exactly one rental plan is chosen. (c) Express the objective function as a linear function and its direction. (d) Are other linear constraints needed to obtain a correct ILP model? If so, give their meaning and formal description; if more variables are needed, give their meaning.]
 
-#tier("review", note: [from Chapters 3–6])
+=== Spaced review
+
+_From Chapters 3–6._
 
 #exercise("ch7-r1", source: "review of Ch. 6", time: 4, tier: "review")[Write the fixed-charge cost of a line that produces $x <= 800$ units at 3 € each plus 500 € if it runs.]
 

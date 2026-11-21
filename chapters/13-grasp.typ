@@ -22,9 +22,9 @@ to *maximize*:
 $ "RCL" = { e in cal(C) : q(e, S) >= q_max - alpha (q_max - q_min) }. $
 Pick one element of the RCL uniformly at random. With $alpha = 0$ only the best candidates are in the list (pure greedy, up to ties); with $alpha = 1$ every candidate is (pure random construction).
 
-#fig("/figures/rcl.svg", caption: [Value-based RCL for a minimization with $alpha = 0.3$: candidates with $q <= 9 + 0.3 (18 - 9) = 11.7$ may be picked.])
+#figure(image("/figures/rcl.svg"), caption: [Value-based RCL for a minimization with $alpha = 0.3$: candidates with $q <= 9 + 0.3 (18 - 9) = 11.7$ may be picked.])
 
-An alternative is a *cardinality-based* RCL: the $k$ best candidates. The value-based one adapts better: when one candidate is far better than the rest, the list contains only it. #think[Why is the RCL recomputed at every step instead of once at the start?]
+An alternative is a *cardinality-based* RCL: the $k$ best candidates. The value-based one adapts better: when one candidate is far better than the rest, the list contains only it. #question(label: [Think first])[Why is the RCL recomputed at every step instead of once at the start?]
 
 == The algorithm
 
@@ -69,7 +69,7 @@ Each iteration is independent (it does not learn from the previous ones — Chap
   Local search (remove redundant sets) drops $p_1$: cost 5, optimal.
 ]
 
-#side[Whether $q_min$ is taken over all sets or only over the useful ones changes the RCL. Including useless candidates ($q = 0$) lowers the threshold and makes the list larger: decide, and say which, in an exam answer.]The network-planning GRASP of the slides works the same way with $alpha = 0.5$ on the incremental costs: at the first step $q$ is 100 for most users and 140 for user 4, the threshold is $100 + 0.5 dot 40 = 120$, and the RCL contains every user except user 4.
+#note[Whether $q_min$ is taken over all sets or only over the useful ones changes the RCL. Including useless candidates ($q = 0$) lowers the threshold and makes the list larger: decide, and say which, in an exam answer.]The network-planning GRASP of the slides works the same way with $alpha = 0.5$ on the incremental costs: at the first step $q$ is 100 for most users and 140 for user 4, the threshold is $100 + 0.5 dot 40 = 120$, and the RCL contains every user except user 4.
 
 #yourturn("ch13-yt1")[
   A maximization step has $q$ values 4, 7, 10, 10, 2 for candidates $e_1, dots, e_5$.
@@ -88,7 +88,7 @@ Each iteration is independent (it does not learn from the previous ones — Chap
 
 Small $alpha$ builds good solutions that are all alike; large $alpha$ builds varied but poor ones, which local search then has to repair. The best value is found by experiment: run GRASP with $alpha in {0, 0.1, dots, 1}$ on a few instances and plot the quality of the best solution (Lab 4, part C). *Reactive GRASP* picks $alpha$ at random each iteration from a set of values, with probabilities that grow for values that produced good solutions. The stopping criterion is a number of iterations or a time limit; since iterations are independent, quality improves roughly logarithmically with time.
 
-#summary[
+#tip(label: [The chapter in five lines])[
   + GRASP = repeat (randomized greedy construction + local search), keep the best.
   + RCL (min): $q <= q_min + alpha (q_max - q_min)$; (max): $q >= q_max - alpha(q_max - q_min)$; pick uniformly from it.
   + $alpha = 0$ greedy, $alpha = 1$ random; tune $alpha$ by experiment (or reactively).
@@ -100,27 +100,33 @@ Small $alpha$ builds good solutions that are all alike; large $alpha$ builds var
 
 #chapter-time()
 
-#tier("warm")
+=== Warm-up
 
 #exercise("ch13-w1", time: 3, tier: "warm")[Minimization, $q = (12, 15, 20, 30)$, $alpha = 0.2$. Which candidates are in the RCL?]
 
 #exercise("ch13-w2", time: 3, tier: "warm")[Why is GRASP with $alpha = 0$ and deterministic tie-breaking pointless beyond one iteration?]
 
-#tier("practice")
+=== Practice
 
 #exercise("ch13-p1", time: 10)[Run the task GRASP with $alpha = 0.7$ on the four-task instance. At which steps is there a real random choice? Give the two possible final maximum loads.]
 
 #exercise("ch13-p2", time: 10)[Redo step 2 of the set-covering GRASP taking $q_min$ only over sets that cover at least one new element. Which RCL do you get, and does it matter here?]
 
-#tier("tool", note: [Lab 4, part C])
+=== CPLEX / OPL
+
+_Lab 4, part C._
 
 #exercise("lab4-c", source: "Lab 4 · part C", time: 15, tier: "tool")[Describe the GRASP construction of the Python code for P2 (its RCL). Tune $alpha$ on two or three instances. Then compare GRASP with greedy + local search on the generated instances, giving GRASP the same time CPLEX needed (or 30 minutes).]
 
-#tier("exam", note: [GRASP has never been asked; this is how it could be])
+=== Exam level
+
+_GRASP has never been asked; this is how it could be._
 
 #exercise("grasp-new-exam", source: "new, exam style", time: 15, tier: "exam")[Turn your greedy for the ISS-crew problem (#exref("jun26-q3a")) into a GRASP. (a) Write the RCL with a parameter $alpha$ and say what happens for $alpha = 0$ and $alpha = 1$. (b) Write the pseudocode of the construction phase. (c) Write the pseudocode of the complete GRASP, naming a suitable local search.]
 
-#tier("review", note: [from Chapters 6, 11 and 12])
+=== Spaced review
+
+_From Chapters 6, 11 and 12._
 
 #exercise("ch13-r1", source: "review of Ch. 12", time: 3, tier: "review")[Name two neighbourhoods for the task-assignment problem.]
 

@@ -25,11 +25,11 @@ Non-linear programs are much harder than linear ones of the same size. The slide
 
 #definition[Convex set, convex function][A region is convex if the segment between any two of its points stays inside it. A function $f$ is convex if the region above its graph, ${(x, y) : y >= f(x)}$, is convex — equivalently, every chord lies on or above the graph. A *convex program* minimizes a convex function over a convex region.]
 
-#fig("/figures/convexity.svg", caption: [A convex function (chords stay above), a non-convex one with a local minimum that is not global, and a non-convex region (a ring).], wide: true)
+#figure(image("/figures/convexity.svg"), caption: [A convex function (chords stay above), a non-convex one with a local minimum that is not global, and a non-convex region (a ring).])
 
 Why care? For a minimization, a *global* minimum $z in S$ satisfies $f(z) <= f(y)$ for all $y in S$; a *local* minimum only for the $y in S$ close to $z$. In a convex program *every local minimum is global*. Many NLP algorithms (gradient methods, Chapter 10's starting point) only find local minima, so they solve convex programs exactly and non-convex ones only approximately.
 
-LPs are convex: a linear function is convex, each linear inequality defines a half-space (convex), and an intersection of convex sets is convex. A quadratic $x^T Q x$ is convex — and $x^T Q x <= k$ a convex region — when $Q$ is positive semidefinite (all eigenvalues $>= 0$). Examples from the slides: $min x^2 + y^2$ over a polygon is convex; $min x - x^3 + y$ is not ($-x^3$ is concave for $x > 0$); $4 <= x^2 + y^2 <= 16$ is a ring, not convex. #think[Maximizing a concave function is a convex program. Why? (Hint: $max f = -min(-f)$.)]
+LPs are convex: a linear function is convex, each linear inequality defines a half-space (convex), and an intersection of convex sets is convex. A quadratic $x^T Q x$ is convex — and $x^T Q x <= k$ a convex region — when $Q$ is positive semidefinite (all eigenvalues $>= 0$). Examples from the slides: $min x^2 + y^2$ over a polygon is convex; $min x - x^3 + y$ is not ($-x^3$ is concave for $x > 0$); $4 <= x^2 + y^2 <= 16$ is a ring, not convex. #question(label: [Think first])[Maximizing a concave function is a convex program. Why? (Hint: $max f = -min(-f)$.)]
 
 #stopbox("ch9-a")[
   + Define a convex program.
@@ -42,12 +42,14 @@ LPs are convex: a linear function is convex, each linear inequality defines a ha
 #definition[Separable][A function is separable if it is a sum of functions of one variable each: $x_1^2 + 2 x_2 + e^(x_3)$ is separable, $x_1 x_2$ is not. A program is separable if its objective and all constraint functions are.]
 
 A separable program can be approximated by an LP: replace each non-linear one-variable term by a piecewise linear function. Take the slides' example
-$ min x^2 - 4x - 2z quad "s.t." quad x + z <= 4, quad 2x + z <= 5, quad -x + 4z >= 2, quad x, z >= 0. $
+$ min x^2 - 4x - 2z quad "s.t." quad & x + z <= 4, quad 2x + z <= 5, \
+  & -x + 4z >= 2, quad x, z >= 0. $
 Only $x^2$ is non-linear, and $x$ ranges over $[0, 2]$ in the feasible region. Choose breakpoints $0, 1, 2$, where $x^2$ equals $0, 1, 4$. A point on the broken line through $(0, 0)$, $(1, 1)$, $(2, 4)$ is a *weighted average of two adjacent breakpoints*:
-$ x = 0 lambda_0 + 1 lambda_1 + 2 lambda_2, quad y = 0 lambda_0 + 1 lambda_1 + 4 lambda_2, quad lambda_0 + lambda_1 + lambda_2 = 1, quad lambda >= 0, $
+$ x = 0 lambda_0 + 1 lambda_1 + 2 lambda_2, quad y = 0 lambda_0 + 1 lambda_1 + 4 lambda_2, \
+  lambda_0 + lambda_1 + lambda_2 = 1, quad lambda >= 0, $
 with *at most two $lambda$'s non-zero, and if two, adjacent*. Replace $x^2$ by $y$: the objective becomes $y - 4x - 2z$, linear.
 
-#fig("/figures/piecewise.svg", caption: [Left: for a convex term the LP stays on the broken line. Right: for $x^3$ the chord between $(0,0)$ and $(2,8)$ lies above the curve; minimizing $-y$ pulls the LP onto it unless adjacency is enforced.], wide: true)
+#figure(image("/figures/piecewise.svg"), caption: [Left: for a convex term the LP stays on the broken line. Right: for $x^3$ the chord between $(0,0)$ and $(2,8)$ lies above the curve; minimizing $-y$ pulls the LP onto it unless adjacency is enforced.])
 
 #example[The approximation in the convex case][
   Here the objective is convex, and an LP solver returns $x = 1$, $z = 3$, value $-9$, using only $lambda_1 = 1$. This is also the exact optimum of the non-linear problem (along the boundary the objective is $x^2 - 2x - 8$ for $x <= 1$ and $x^2 - 10$ for $x >= 1$, both smallest at $x = 1$). For a convex program the adjacency condition is satisfied automatically by the LP optimum: mixing non-adjacent breakpoints puts $y$ on a chord _above_ the convex curve, which only costs more when we minimize.
@@ -80,7 +82,7 @@ Many non-separable functions can be rewritten. The product of two variables is t
 $ x_1 x_2 = u_1^2 - u_2^2 quad "with" quad u_1 = (x_1 + x_2) slash 2, quad u_2 = (x_1 - x_2) slash 2. $
 Check: $u_1^2 - u_2^2 = (u_1 - u_2)(u_1 + u_2) = x_2 x_1$. Now $u_1^2$ and $-u_2^2$ are one-variable terms that can be approximated piecewise — note that $-u_2^2$ is concave, so an SOS2 is needed for it in a minimization. Products of more variables are reduced two at a time. And when one factor is binary, no approximation is needed at all: Chapter 6 linearized $x_1 dots x_k y$ exactly.
 
-#summary[
+#tip(label: [The chapter in five lines])[
   + Non-linear programs are much harder than linear ones; linearize exactly whenever possible.
   + Convex program = convex objective (minimized) over a convex region; there, local minima are global.
   + Separable programs can be approximated by LPs: $x = sum lambda_k b_k$, $y = sum lambda_k f(b_k)$, $sum lambda_k = 1$.
@@ -92,13 +94,13 @@ Check: $u_1^2 - u_2^2 = (u_1 - u_2)(u_1 + u_2) = x_2 x_1$. Now $u_1^2$ and $-u_2
 
 #chapter-time()
 
-#tier("warm")
+=== Warm-up
 
 #exercise("ch9-w1", time: 4, tier: "warm")[Linear or not? (a) $x + y + 1$; (b) $x y + x$; (c) $x slash y + y$; (d) $|x| + |y| + 1$; (e) $sqrt(x) + 2x$; (f) $e^x - y$; (g) $min(x, y) - 1$; (h) $0$.]
 
 #exercise("ch9-w2", time: 4, tier: "warm")[Convex or not on the given set? (a) $x^2$ on $RR$; (b) $-x^2$ on $RR$; (c) $x^3$ on $[0, infinity)$; (d) $x^3$ on $RR$; (e) $e^x$ on $RR$; (f) $ln x$ on $(0, infinity)$.]
 
-#tier("practice")
+=== Practice
 
 #exercise("ch9-p1", time: 10)[Write the slides' approximate model of $min x - x^3 + z$ (same polygon, breakpoints $0, 1, 1.5, 2$) and the binary SOS2 encoding of its four weights.]
 
@@ -106,11 +108,15 @@ Check: $u_1^2 - u_2^2 = (u_1 - u_2)(u_1 + u_2) = x_2 x_1$. Now $u_1^2$ and $-u_2
 
 #exercise("ch9-p3", time: 6)[A concave cost (economies of scale) appears in a minimization. Explain with a picture why the LP approximation without adjacency underestimates the cost.]
 
-#tier("exam", note: [never examined so far; written in the style of the finals])
+=== Exam level
+
+_Never examined so far; written in the style of the finals._
 
 #exercise("nlp-new-exam", source: "new, exam style", time: 20, tier: "exam")[A shop needs 50 tons of coffee. Supplier B sells at 6.5 €/t. Supplier A gives volume discounts: its cost is the piecewise linear function through $(0, 0)$, $(10, 100)$, $(30, 220)$, $(60, 370)$ (tons, €), and it sells at most 60 t. (a) Is A's cost function convex or concave? Justify with its slopes. (b) Write the $lambda$-formulation of the problem of buying the 50 tons at minimum cost. (c) Solve the LP _without_ the adjacency condition and say why its answer is wrong. (d) Give the true optimum and the binary constraints that would make the LP return it.]
 
-#tier("review", note: [from Chapters 4–8])
+=== Spaced review
+
+_From Chapters 4–8._
 
 #exercise("ch9-r1", source: "review of Ch. 8", time: 4, tier: "review")[A relaxation of a maximization gives 41.5 with $x_2 = 6.5$; the incumbent is 41. Branch or prune?]
 

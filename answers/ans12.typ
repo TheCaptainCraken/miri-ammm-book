@@ -1,6 +1,4 @@
-#import "../template.typ": *
-
-== Chapter 12
+#import "../refs.typ": answer, exref, slidenote
 
 #answer("ch12-yt1")[Within ${p_4, p_6}$, elements 2 and 3 are covered only by $p_4$. After removing $p_4$ we need a set covering ${2, 3}$: $p_7$ (cost 2) alone, or $p_4$ again. Best exchange $p_4 -> p_7$, new cost $3 + 2 = 5$ (optimal).]
 

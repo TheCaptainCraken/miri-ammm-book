@@ -1,6 +1,4 @@
-#import "../template.typ": *
-
-== Chapter 4
+#import "../refs.typ": answer, exref, slidenote
 
 #answer("ch4-yt1")[$x_2 = 1 - x_0 + x_3$; substituting, $-x_0 - 2 x_1 + 2(1 - x_0 + x_3) - 2 x_3 = -2$, so $x_1 = 2 - frac(3, 2) x_0$. Basic solution $x_2 = 1$, $x_1 = 2$; objective $2 dot 2 + 2 dot 1 = 6$. In non-basic variables $z = 2x_0 + 2(2 - frac(3,2) x_0) + 2(1 - x_0 + x_3) + x_3 = 6 - 3 x_0 + 3 x_3$. $x_3$ satisfies optimality ($d_3 = 3$); $x_0$ does not ($d_0 = -3$). Ratio test: $x_2 = 1 - x_0$ gives $x_0 <= 1$; $x_1 = 2 - frac(3,2) x_0$ gives $x_0 <= 4 slash 3$. Best value 1 ($x_2$ leaves).]
 

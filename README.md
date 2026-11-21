@@ -21,7 +21,8 @@ Each push to `main` rebuilds the PDFs and publishes them to GitHub Pages.
 
 ## Layout
 
-`main.typ` (entry) · `template.typ` (helpers) · `chapters/` · `answers/` · `figures/` · `verify/` ·
+`main.typ` (entry) · `template.typ` (the book's recurring pieces, made of craken's; no styling of its own) · `chapters/` ·
+`answers/` (one `#answer(id)` per exercise or question; craken prints it with the chapter) · `figures/` · `verify/` ·
 `vendor/` ([Captain Craken template](https://github.com/TheCaptainCraken/craken-book-template), MIT; fonts under OFL)
 
 ## License
