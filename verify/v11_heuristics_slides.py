@@ -218,6 +218,18 @@ real = sum(d(t2[i], t2[(i + 1) % 5]) for i in range(5))
 print("decoder with chromosome 2 (NN on weighted distances from 1):", t2, "real length", real)
 assert t2 == [1, 2, 5, 3, 4] and real == 40   # 10+4+14+5+7
 
+# BRKGA keys as priorities (Ch15): one key per city 2..5, visit by increasing key
+def sort_decode(keys):
+    tour = [1] + sorted(range(2, 6), key=lambda c: keys[c - 2])
+    return tour, sum(d(tour[i], tour[(i + 1) % 5]) for i in range(5))
+
+
+pa, pb = (0.7, 0.4, 0.1, 0.9), (0.2, 0.8, 0.5, 0.3)
+assert sort_decode(pa) == ([1, 4, 3, 2, 5], 36)
+kid = tuple(x if pick == "a" else y for x, y, pick in zip(pa, pb, "abba"))
+assert kid == (0.7, 0.8, 0.5, 0.9) and sort_decode(kid) == ([1, 4, 2, 3, 5], 58)
+print("sort decoder:", sort_decode(pa), "child", kid, sort_decode(kid))
+
 # BRKGA parametrised uniform crossover (slide example)
 a_ = (0.25, 0.19, 0.67, 0.05, 0.89)
 b_ = (0.63, 0.90, 0.76, 0.93, 0.08)

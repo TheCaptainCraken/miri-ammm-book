@@ -30,17 +30,68 @@ The difficulty is the encoding. For the TSP, the natural chromosome is the tour 
 
 == Random keys and the decoder
 
-*BRKGA* (biased random-key genetic algorithm) moves all problem knowledge into one place. A chromosome is a vector of $g$ *random keys* in $[0, 1)$. Any vector of keys is a valid chromosome, so crossover and mutation are generic and never need repair. The problem-specific part is the *decoder*: a deterministic procedure that reads the keys and builds a feasible solution, returning its fitness (the objective, plus a penalty if the decoder could not reach feasibility).
+*BRKGA* (biased random-key genetic algorithm) answers that question by moving all problem knowledge into one place. A chromosome is a vector of $g$ *random keys* in $[0, 1)$: the same kind of object for every problem, so crossover and mutation are generic, and any vector they produce is a valid chromosome. The problem-specific part is the *decoder*, a procedure that reads the keys, builds a solution and returns its fitness. Evolution never sees a solution: it sees only keys, and the fitness the decoder reports for them.
 
-The most convenient decoder for the exam is *your greedy algorithm with the keys plugged into the greedy function*: one key per candidate (or per item), and
+A decoder must meet three requirements:
+- it accepts _every_ vector of keys and returns a solution — if it can get stuck, it still returns, with a penalized fitness;
+- it is _deterministic_: the same keys always give the same solution, so the fitness belongs to the chromosome and selecting the fittest makes sense;
+- the keys _matter_: different keys lead to different solutions, or evolution has nothing to choose between.
+
+There are two ways to build one.
+
+=== Keys as priorities
+
+The simplest decoder sorts. For the TSP, give one key to each city except the start, and visit the cities in increasing order of key. On the five cities of Chapter 11, keys $(0.7, 0.4, 0.1, 0.9)$ for cities 2–5 sort to 4, 3, 2, 5: the tour 1–4–3–2–5–1, of length 36. Cross this chromosome with $(0.2, 0.8, 0.5, 0.3)$, taking the keys of cities 2 and 5 from the first parent and those of cities 3 and 4 from the second: the child $(0.7, 0.8, 0.5, 0.9)$ sorts to 4, 2, 3, 5, the tour 1–4–2–3–5–1. It is a poor tour (58), but it is a tour: sorting cannot repeat a city or miss one, so no child ever needs repair. That is the property the "Think first" question asked for — the repair has moved into the decoder, where it is automatic.
+
+Sorting knows nothing about the problem, though: a random chromosome is a random tour, and evolution has to discover every good edge by itself. Better decoders put problem knowledge into the construction — and you already have a construction full of it.
+
+=== Keys inside the greedy
+
+The decoder to use in the exam is *your greedy of part (a), with one key per candidate and one line changed*:
+
+```pseudo
+initialize the candidate set C
+S <- {}
+while S is not a solution:
+    // was: argmin { q(e, S) : e in C }
+    e_best <- argmin { ch[e] * q(e, S) : e in C }
+    S <- S + {e_best}
+    update C: remove e_best and every candidate
+              that became infeasible
+return S, f(S)     // fitness: the real objective
+```
+
+In other words, the greedy function becomes
 $ q'(e, S) = "ch"_e dot q(e, S) $
-(or a similar combination). Different chromosomes bend the greedy's preferences in different directions, so they build different solutions; evolution searches for the keys that make the greedy build the best one. Another classic decoder uses the keys as *priorities*: sort the items by their key and process them in that order with a simple rule.
+(or a similar combination, see below). Everything else is the greedy's, and that is what makes the decoder work:
+- *Feasibility is inherited.* The candidate set and its updates are untouched, so the decoder only picks candidates the greedy would also accept. The keys change _which_ feasible candidate wins, never _whether_ it is feasible. If the greedy has an INFEASIBLE exit, so does the decoder, and there the fitness gets a penalty.
+- *The keys bend the preferences.* When minimizing, a key near 0 makes a candidate look cheap, so it is chosen earlier; a key near 1 leaves its cost as it is. (When maximizing a score, multiplying works too: a large key favours.) With all keys equal, $q'$ is proportional to $q$ and the decoder _is_ the greedy: the greedy's solution is one of those BRKGA can reach, and the keys explore the solutions around it.
+- *The fitness is the real objective.* $q'$ only steers the construction; the decoded solution is judged by $f(S)$, plus the penalty if any — never by the sum of the weighted values.
 
-#revisit("ch15")[The list does not describe the solution directly; the decoder does. Each key weights (or orders) one candidate of a greedy, and the greedy builds the solution. Every list of keys yields a feasible solution, so the genetic operators never break anything.]
+In the words of the introduction, the greedy is the house recipe and the keys are the note on the order slip: they change how the dish turns out, but the kitchen still cooks only what is on the menu. Compare GRASP (Chapter 13), which perturbs the greedy with fresh random choices in every construction and forgets them afterwards. BRKGA writes the perturbation down, as keys, so the perturbations that led to good solutions are inherited by the next generation.
 
 #example[The TSP decoder of the slides][
-  One key per edge (10 edges for 5 cities). The decoder multiplies each distance by its key and runs nearest neighbour from city 1 on the weighted distances. With chromosome 2 of the slides — keys 0.3, 0.7, 0.6, 0.4, 0.4, 0.7, 0.3, 0.9, 0.3, 0.65 for the edges 12, 13, 14, 15, 23, 24, 25, 34, 35, 45 — the weighted distances are 3, 8.4, 4.2, 3.6, 4.4, 11.9, 1.2, 4.5, 4.2, 5.85. From 1 the nearest is 2 (3), then 5 (1.2), then 3 (4.2), then 4 (4.5): tour 1–2–5–3–4–1, whose real length is $10 + 4 + 14 + 5 + 7 = 40$. The fitness is the _real_ length; the weights only steer the construction.
+  The greedy is nearest neighbour from city 1, with one key per edge (10 edges for 5 cities): $q'$ is the distance of an edge times its key. Chromosome 2 of the slides gives these weighted distances:
+
+  #table(columns: (auto,) + (1fr,) * 10, align: center,
+    table.header([edge], [12], [13], [14], [15], [23], [24], [25], [34], [35], [45]),
+    [$d$], [10], [12], [7], [9], [11], [17], [4], [5], [14], [9],
+    [$"ch"$], [0.3], [0.7], [0.6], [0.4], [0.4], [0.7], [0.3], [0.9], [0.3], [0.65],
+    [$"ch" dot d$], [3], [8.4], [4.2], [3.6], [4.4], [11.9], [1.2], [4.5], [4.2], [5.85],
+  )
+
+  From 1 the smallest weighted edge goes to 2 (3), from 2 to 5 (1.2), from 5 to 3 (4.2), from 3 to 4 (4.5), then back to 1: tour 1–2–5–3–4–1. Its fitness is the _real_ length $10 + 4 + 14 + 5 + 7 = 40$, not the sum of the weighted distances. The same greedy, steered by other keys, built another tour — here a worse one than plain nearest neighbour; evolution's job is to find the keys that steer it somewhere better.
 ]
+
+#revisit("ch15")[The list does not describe the solution directly; the decoder does. Each key orders or weights one city, item or candidate, and a construction — a sort, or your greedy — builds the solution from them. Every list of keys yields a solution, so the genetic operators never break anything.]
+
+=== When the keys do nothing
+
+A decoder fails the third requirement when many chromosomes decode to the same solution. Two traps:
+- *A greedy value of zero.* If $q(e, S) = 0$, then $"ch"_e dot q(e, S) = 0$ too, so all the candidates with $q = 0$ stay tied whatever their keys — typically at the first step, when $S$ is empty and nothing has been added yet. Use $q' = "ch"_e dot (1 + q)$, or $q' = q + epsilon "ch"_e$, or let the keys break the ties.
+- *One key per item, while the greedy chooses a place for that item.* If the greedy takes the items in a fixed order and puts each where it costs least (a task on a computer, a VM in a datacentre), a key per item multiplies the cost of _all_ the places of that item by the same number: the argmin does not move, and every chromosome decodes to the greedy's solution. Use one key per pair $chevron.l "item", "place" chevron.r$, or use the item keys for the processing order — keys as priorities again, with the greedy's rule choosing the place. The Python BRKGA of Lab 4 does the latter: tasks in decreasing order of $"ch"_t dot r_t$, each on the computer the greedy would choose.
+
+The rule behind both: a key must be able to change the outcome of a comparison the greedy actually makes.
 
 == Evolution in BRKGA
 
@@ -63,10 +114,8 @@ The slides' example: elite parent $a = (0.25, 0.19, 0.67, 0.05, 0.89)$, other pa
 
 + *Chromosome:* "$|"ch"| = $ (number of candidates or items)", with one key per what.
 + *Fitness:* the objective of the decoded solution; if the decoder may fail, add a large penalty times the violation so infeasible individuals rank last.
-+ *Decoder:* "the greedy of (a) with $q'(e, S) = "ch"_e dot q(e, S)$" (adjusted so that the key matters, see below), and the lines of pseudocode that change.
++ *Decoder:* "the greedy of (a) with $q'(e, S) = "ch"_e dot q(e, S)$", and the lines of pseudocode that change. Check it against _When the keys do nothing_: $q = 0$, and a key per item when the greedy chooses a place for the item.
 + If asked, *illustrate* with two chromosomes on a small instance, showing that they lead to different solutions.
-
-One trap: if $q$ can be 0, multiplying by $"ch"_e$ changes nothing and all zero candidates stay tied. Use $q' = "ch"_e dot (1 + q)$, or $q' = q + "ch"_e dot epsilon$, or use the keys to break ties. Another: when maximizing, a larger key should favour the candidate in the same direction consistently (multiply the score) — say which.
 
 #example[The neighbours problem: greedy versus decoder][
   Six neighbours, $T = (3, 2, 4, 9, 8, 9)$, and $M(1) = {1, 2}$, $M(2) = {2}$, $M(3) = {1, 3}$, $M(4) = {1, 2, 4, 5}$, $M(5) = {2, 5, 6}$, $M(6) = {5, 6}$; at least 3 neighbours must be convinced.
@@ -83,7 +132,7 @@ One trap: if $q$ can be 0, multiplying by $"ch"_e$ changes nothing and all zero 
 #tip(label: [The chapter in five lines])[
   + GA: population, fitness, selection, crossover, mutation; permutation encodings need problem-specific operators and repair.
   + BRKGA: chromosomes are vectors of random keys in $[0, 1)$; every vector is valid; all problem knowledge is in the decoder.
-  + Decoder = the greedy with keys plugged in, e.g. $q' = "ch"_e dot q$ (beware $q = 0$), or keys as priorities.
+  + Decoder: keys as priorities (sort), or your greedy with $q' = "ch"_e dot q$ — feasible because the greedy is; fitness = the real objective; make sure a key can change a choice ($q = 0$, key per item).
   + Next generation: copy the elite, add random mutants, fill with elite × non-elite children (gene from the elite parent with probability $rho > 0.5$).
   + Exam 3(b): $|"ch"|$ and meaning of each key; fitness (with penalty); decoder as a modification of the greedy; two-chromosome illustration if asked.
 ]
