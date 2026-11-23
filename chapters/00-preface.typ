@@ -32,6 +32,8 @@ It is not a summary. A summary helps you recognize the material; the exam asks y
 
 *Margin notes "On the slides"* mark places where a slide (or an official solution, or an exercise sheet) contains an error, a misleading shortcut or a convention different from the book's. Each says what the slide says, what is correct and why. Appendix A collects all of them.
 
+*Appendix C* is not for the exam. It follows Prof. Velasco's research through the course's last deck, _Some Applications_, and shows the heuristics of Part II at work on real networks.
+
 == The logbook
 
 Answer everything! Pretests, Your turn, Stop boxes, exercises. Do it in one place, by date: the logbook. Its real job is to keep your *mistakes*. A mistake you have written down, in your own words, next to what you should have done, is the most useful page you will have before the exam. A mistake you only noticed is forgotten by the next session.
