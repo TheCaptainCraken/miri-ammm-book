@@ -8,7 +8,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib import font_manager
-from matplotlib.patches import Polygon, Rectangle, FancyArrowPatch, Circle
+from matplotlib.patches import Polygon, Rectangle, FancyArrowPatch, Circle, FancyBboxPatch, Ellipse
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 # Newsreader Text, the craken text face, from the installed craken package
@@ -344,8 +344,97 @@ def time_size():
     save(fig, "time-size")
 
 
+# ------------------------------------------------------------ appendix C
+def autonomic_loop():
+    """Prof. Velasco's schema of telecom cloud operation (Applications deck, slide 32), redrawn:
+    the MDA system closes an observe-analyse-act loop over the orchestrators and the network."""
+    fig, ax = plt.subplots(figsize=(W * 1.15, 3.63))
+    ax.axis("off"); ax.set_xlim(0, 12.4); ax.set_ylim(0, 9.1)
+    FS = 5.8                                       # text in boxes
+
+    def box(x0, y0, x1, y1, text="", fc=PAPER, ty=None, fs=FS, weight="normal"):
+        ax.add_patch(FancyBboxPatch((x0, y0), x1 - x0, y1 - y0, boxstyle="round,pad=0,rounding_size=0.12",
+                                    fc=fc, ec=K, lw=0.6))
+        if text:
+            ax.text((x0 + x1) / 2, (y0 + y1) / 2 if ty is None else ty, text, ha="center", va="center",
+                    fontsize=fs, weight=weight, linespacing=1.15)
+
+    def arrow(a, b, lw=0.6, ls="-", color=K, style="-|>", ms=6):
+        ax.add_patch(FancyArrowPatch(a, b, arrowstyle=style, mutation_scale=ms, lw=lw, color=color, ls=ls,
+                                     shrinkA=0, shrinkB=0))
+
+    def step(x, y, n, label, note=None):          # a numbered stage of the loop
+        ax.text(x, y, str(n), ha="center", va="center", fontsize=6.2, weight="bold", color=PAPER,
+                bbox=dict(boxstyle="circle,pad=0.22", fc=K, ec="none"))
+        ax.text(x + 0.3, y, label, ha="left", va="center", fontsize=7, weight="bold")
+        if note:
+            ax.text(x + 0.3, y - 0.45, note, ha="left", va="center", fontsize=5.8, color=G1, style="italic")
+
+    # left: from raw data to decisions (knowledge discovery), lined up with the two levels
+    ax.add_patch(Polygon([(0.1, 0.15), (2.1, 0.15), (2.1, 7.95), (2.3, 7.95), (1.1, 9.0), (-0.1, 7.95), (0.1, 7.95)],
+                         closed=True, fc=G3, ec="none"))
+    for y, t in [(0.75, "collection"), (1.85, "pre-processing"), (4.85, "data mining,\nmachine\nlearning"),
+                 (6.1, "decision\nmaking"), (7.25, "pattern\nevaluation &\nvisualization")]:
+        ax.text(1.1, y, t, ha="center", va="center", fontsize=5.6, linespacing=1.1)
+    ax.text(1.1, 3.15, "knowledge discovery", ha="center", va="center", fontsize=5.4, color=G1, rotation=90, style="italic")
+
+    # top: control, management and orchestration
+    box(2.45, 4.0, 12.3, 9.05, fc=G3)
+    ax.text(7.4, 8.78, "domain control, management and orchestration", ha="center", va="center", fontsize=6.4, weight="semibold")
+    box(2.65, 4.2, 5.35, 8.45)                                           # MDA
+    ax.text(4.0, 7.98, "monitoring and\ndata analytics\n(MDA)", ha="center", va="center", fontsize=6.1,
+            weight="semibold", linespacing=1.1)
+    box(2.85, 6.5, 5.15, 7.45, "data analytics\nalgorithms", fc=G2)
+    box(2.85, 5.05, 5.15, 5.6, "data repository")
+    box(2.85, 4.35, 5.15, 4.9, "data collector")
+    arrow((4.0, 4.9), (4.0, 5.05), ms=5)
+    arrow((3.15, 5.6), (3.15, 6.5), lw=1.4, ms=8)
+    step(3.55, 6.05, 2, "analyse")
+    box(5.75, 4.2, 12.15, 8.45)                                          # the usual control plane
+    ax.text(8.95, 8.1, "virtual infrastructure manager", ha="center", va="center", fontsize=6.1, weight="semibold")
+    box(5.95, 7.05, 10.3, 7.65, "NFV orchestrator", fc=G3)
+    box(10.45, 6.95, 11.95, 7.75, "planning\ntool", fc=G2)
+    box(5.95, 4.4, 10.3, 6.75, fc=G3)
+    ax.text(8.12, 6.45, "network orchestrator", ha="center", va="center", fontsize=FS)
+    box(6.15, 4.55, 8.05, 5.9, "optical SDN\ncontroller")
+    box(8.2, 4.55, 10.1, 5.9, "L2/L3 SDN\ncontroller")
+    box(10.45, 5.85, 11.95, 6.65, "planning\ntool", fc=G2)
+    arrow((8.12, 6.75), (8.12, 7.05), style="<|-|>", ms=4)
+    for y in (7.3, 6.65):                                                # what the analysis found
+        arrow((5.15, y), (5.95, y), lw=1.4, ms=8)
+
+    # bottom: the infrastructure (squares: optical switches; circles: routers)
+    ax.add_patch(Ellipse((7.35, 1.35), 4.9, 2.5, fc=G3, ec=G2, lw=0.6))
+    sw = [(5.9, 1.9), (6.6, 0.7), (8.2, 0.65), (8.9, 1.95)]
+    rt = [(4.85, 0.75), (9.9, 0.75)]
+    for a, b in [(0, 1), (1, 2), (2, 3), (0, 3), (1, 3)]:
+        ax.plot(*zip(sw[a], sw[b]), color=G1, lw=0.6)
+    for r, s in [(0, 0), (0, 1), (1, 2), (1, 3)]:
+        ax.plot(*zip(rt[r], sw[s]), color=G1, lw=0.6)
+    for x, y in sw:
+        ax.plot(x, y, "s", ms=5, mfc=PAPER, mec=K, mew=0.6)
+    for x, y in rt:
+        ax.plot(x, y, "o", ms=5.5, mfc=G2, mec=K, mew=0.6)
+    ax.text(7.4, 1.3, "optical network", ha="center", va="center", fontsize=FS, style="italic",
+            bbox=dict(fc=G3, ec="none", pad=0.5))
+    for x0 in (2.6, 10.25):
+        box(x0, 0.2, x0 + 1.9, 1.3, "datacentre", fc=G2)
+        box(x0, 1.65, x0 + 1.9, 2.25, "VIM")
+        arrow((x0 + 0.95, 1.3), (x0 + 0.95, 1.65), style="<|-|>", ms=4)
+
+    # the loop: observe on the way up, act on the way down
+    for a, b in [((4.2, 2.25), (4.2, 4.35)), ((5.9, 1.9), (4.8, 4.35))]:
+        arrow(a, b, ls=(0, (3, 2)), color=G1, ms=5)
+    step(2.75, 3.45, 1, "observe", "monitoring")
+    for a, b in [((7.1, 4.55), (6.6, 0.7)), ((7.1, 4.55), (8.9, 1.95)), ((9.15, 4.55), (9.9, 0.75))]:
+        arrow(a, b, ls=(0, (3, 2)), color=G1, ms=5)
+    arrow((11.7, 4.2), (11.7, 2.25), ls=(0, (3, 2)), color=G1, style="<|-|>", ms=5)
+    step(9.85, 3.45, 3, "act", "configuration")
+    save(fig, "autonomic-loop")
+
+
 if __name__ == "__main__":
     for fn in [lp_region, simplex_path, phase1, bb_region, bb_tree, convexity, piecewise, landscape, tsp,
-               network, rcl, path_relinking, brkga, packing, bigm, time_size]:
+               network, rcl, path_relinking, brkga, packing, bigm, time_size, autonomic_loop]:
         fn()
         print("figure", fn.__name__)

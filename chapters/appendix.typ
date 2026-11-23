@@ -58,7 +58,7 @@ Every question of the five past finals, every exercise of the two homework sheet
 
 = Appendix C · Prof. Velasco's research
 
-The last deck of the course, _Some Applications_, is not exam material. It is a tour of Prof. Luis Velasco's own research on optical networks, datacentres and the telecom cloud, and it is worth an hour anyway: every problem in it is stated the way Part II states problems and solved with the tools of Part II, on networks that carry real traffic. This appendix goes through the deck problem by problem and says, for each one, what is optimized and which chapter its method comes from. It ends with the deck's last part, where a network watches itself and reconfigures itself, and with VENTURE, the algorithm that does the reconfiguring.
+The last deck of the course, _Some Applications_, is not exam material. It is a tour of Prof. Luis Velasco's own research on optical networks, datacentres and the telecom cloud, and it is worth an hour anyway: every problem in it is stated the way Part II states problems and solved with the tools of Part II, on networks that carry real traffic. This appendix goes through the deck problem by problem and says, for each one, what is optimized and which chapter its method comes from. It ends with the deck's last part: the framework that lets a network watch itself and reconfigure itself, drawn in Prof. Velasco's observe–analyse–act schema, and VENTURE, the algorithm that does the reconfiguring.
 
 A few words of networking are enough for the slides:
 
@@ -133,7 +133,30 @@ The planning procedure of the slides takes a candidate set $D'$ of locations and
 
 The last part of the deck moves from planning a network to letting it run itself. A telecom cloud, the datacentres and the optical network between them operated as one infrastructure, is watched continuously; the data is analysed; and the network is reconfigured according to what the analysis says, without waiting for an operator or for next year's plan.
 
+=== The schema: observe, analyse, act
+
+#figure(image("/figures/autonomic-loop.svg", width: 100%), numbering: n => "C." + str(n), caption: [Prof. Velasco's schema of telecom cloud operation (_Some Applications_, slide 32), redrawn. The monitoring and data analytics system closes a loop over the control plane and the network: observe, analyse, act. Squares are optical switches, circles routers.])
+
+Read the schema from the bottom up.
+
+*The infrastructure.* At the bottom, the datacentres and the optical network between them. Each datacentre has a _virtual infrastructure manager_ (VIM) that creates, moves and deletes its VMs; the network is made of optical switches, with IP routers at its edges.
+
+*The control plane.* At the top right is what every telecom cloud already has. A virtual infrastructure manager for the whole cloud coordinates two orchestrators. The _NFV orchestrator_ runs network functions as VMs in the datacentres (the BBU pools of C-RAN are one example). The _network orchestrator_ sets up connections through two _SDN controllers_ (software-defined networking), one for the optical layer and one for the IP and Ethernet layers (L2/L3). Each orchestrator consults a *planning tool*. That box is where this book lives: the optimization algorithms that decide a new configuration.
+
+*The MDA system.* At the top left is what the framework adds: _monitoring and data analytics_. A _data collector_ receives measurements from the devices, a _data repository_ keeps them, and _data analytics algorithms_ turn them into knowledge.
+
+The three numbered steps close the loop:
++ *Observe.* Monitoring data flows up from the VIMs and the network devices to the collector: the traffic on every vlink and of every OD pair, the state of every connection.
++ *Analyse.* The analytics algorithms, often machine learning, look for patterns in the stored data. They predict, for instance, the OD traffic of the next hour, or detect a degradation before it becomes a failure.
++ *Act.* The knowledge goes to the orchestrators (the two thick arrows). Their planning tools compute a new configuration, and the SDN controllers and the VIMs apply it to the network and the datacentres. Then the loop starts again, and the next observation shows the effect of the action.
+
+The arrow on the left is the classical path from data to knowledge, _knowledge discovery_: collection, pre-processing, data mining and machine learning, decision making, and finally the evaluation and presentation of the patterns found. It is drawn next to the schema so that each stage sits at its place in the loop: collection and pre-processing down by the devices, where the network is observed; data mining at the level of the analytics; decision making where knowledge turns into action.
+
+Compare it with the life cycle at the start of the deck. Off-line planning closes the same loop once a year, with people at every step: measure, forecast, design, deploy. In-operation planning closes it while the network runs. The autonomic loop closes it with no one inside: the network observes, analyses and acts on its own, and the act step is an optimization problem that must be solved before its input goes stale. That is why its planning tools run heuristics, and the problem the slides put in that box is VENTURE.
+
 === VENTURE
+
+VENTURE runs the whole loop on one problem. The OD traffic is observed; it is analysed into a prediction model of each OD pair (piecewise linear, fitted to the monitoring data); and every hour the act step reconfigures the virtual network topology for the traffic to come.
 
 The usual way to adapt a VNT to its traffic is a *threshold*: monitor the use of every vlink and add capacity when it passes, say, 90 %. That is reactive (it acts once the vlink is already busy) and it sees only vlinks, not where the traffic is going. On the slides, the traffic from R6 to R7 grows; the threshold rule upgrades both vlinks of its path, R6–R1 and R1–R7, from 100 to 200 Gb/s. VENTURE (Morales et al., 2017) works from a prediction of the near-future OD traffic instead: it sees that the growth is R6 → R7, and opens one direct vlink R6–R7 of 100 Gb/s.
 - _Given:_ the current VNT $G(N, E')$, with $E' subset.eq E$, the set of all possible vlinks; the transponders $P$ of the routers, each of capacity $B$; the current traffic matrix $D$ and the predicted one, $"OD"$. Each OD pair $o$ is served on a single path, unless its bitrate $b_o$ fills transponders above a usage boundary $"tbu"$; then it may be split into two flows on different paths.
